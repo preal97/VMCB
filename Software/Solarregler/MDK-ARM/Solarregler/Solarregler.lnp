@@ -1,0 +1,28 @@
+--cpu Cortex-M3
+"solarregler\startup_stm32f103xb.o"
+"solarregler\max31865.o"
+"solarregler\main.o"
+"solarregler\stm32f1xx_it.o"
+"solarregler\stm32f1xx_hal_msp.o"
+"solarregler\stm32f1xx_hal_gpio_ex.o"
+"solarregler\stm32f1xx_hal_can.o"
+"solarregler\stm32f1xx_hal_i2c.o"
+"solarregler\stm32f1xx_hal_spi.o"
+"solarregler\stm32f1xx_hal_spi_ex.o"
+"solarregler\stm32f1xx_hal_tim.o"
+"solarregler\stm32f1xx_hal_tim_ex.o"
+"solarregler\stm32f1xx_hal_uart.o"
+"solarregler\stm32f1xx_hal.o"
+"solarregler\stm32f1xx_hal_rcc.o"
+"solarregler\stm32f1xx_hal_rcc_ex.o"
+"solarregler\stm32f1xx_hal_gpio.o"
+"solarregler\stm32f1xx_hal_dma.o"
+"solarregler\stm32f1xx_hal_cortex.o"
+"solarregler\stm32f1xx_hal_pwr.o"
+"solarregler\stm32f1xx_hal_flash.o"
+"solarregler\stm32f1xx_hal_flash_ex.o"
+"solarregler\system_stm32f1xx.o"
+--library_type=microlib --strict --scatter "Solarregler\Solarregler.sct"
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "Solarregler.map" -o Solarregler\Solarregler.axf
