@@ -42,6 +42,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern CAN_HandleTypeDef hcan;
 extern SPI_HandleTypeDef hspi2;
 extern TIM_HandleTypeDef htim2;
 extern UART_HandleTypeDef huart2;
@@ -197,6 +198,62 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+* @brief This function handles USB high priority or CAN TX interrupts.
+*/
+void USB_HP_CAN1_TX_IRQHandler(void)
+{
+  /* USER CODE BEGIN USB_HP_CAN1_TX_IRQn 0 */
+
+  /* USER CODE END USB_HP_CAN1_TX_IRQn 0 */
+  HAL_CAN_IRQHandler(&hcan);
+  /* USER CODE BEGIN USB_HP_CAN1_TX_IRQn 1 */
+
+  /* USER CODE END USB_HP_CAN1_TX_IRQn 1 */
+}
+
+/**
+* @brief This function handles USB low priority or CAN RX0 interrupts.
+*/
+void USB_LP_CAN1_RX0_IRQHandler(void)
+{
+  /* USER CODE BEGIN USB_LP_CAN1_RX0_IRQn 0 */
+
+  /* USER CODE END USB_LP_CAN1_RX0_IRQn 0 */
+  HAL_CAN_IRQHandler(&hcan);
+  /* USER CODE BEGIN USB_LP_CAN1_RX0_IRQn 1 */
+
+  /* USER CODE END USB_LP_CAN1_RX0_IRQn 1 */
+}
+
+/**
+* @brief This function handles CAN RX1 interrupt.
+*/
+void CAN1_RX1_IRQHandler(void)
+{
+  /* USER CODE BEGIN CAN1_RX1_IRQn 0 */
+
+  /* USER CODE END CAN1_RX1_IRQn 0 */
+  HAL_CAN_IRQHandler(&hcan);
+  /* USER CODE BEGIN CAN1_RX1_IRQn 1 */
+
+  /* USER CODE END CAN1_RX1_IRQn 1 */
+}
+
+/**
+* @brief This function handles CAN SCE interrupt.
+*/
+void CAN1_SCE_IRQHandler(void)
+{
+  /* USER CODE BEGIN CAN1_SCE_IRQn 0 */
+
+  /* USER CODE END CAN1_SCE_IRQn 0 */
+  HAL_CAN_IRQHandler(&hcan);
+  /* USER CODE BEGIN CAN1_SCE_IRQn 1 */
+
+  /* USER CODE END CAN1_SCE_IRQn 1 */
+}
+
+/**
 * @brief This function handles TIM2 global interrupt.
 */
 void TIM2_IRQHandler(void)
@@ -246,32 +303,33 @@ void USART2_IRQHandler(void)
 	extern double temperaturSchwelle;
 	extern uint8_t relaisState;
 	extern uint8_t UARTBuffer[2];
+	static uint8_t messageCount;
 	
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
 	
+  if(messageCount > 1){
+		
 	if(UARTBuffer[0] == 'R'){
 		if(UARTBuffer[1] == 'P'){
 			HAL_UART_Transmit(&huart2, (uint8_t *) &temperaturBuffer, 8, HAL_MAX_DELAY);
-			UARTBuffer[0] = UARTBuffer[1] =0;
 		}
 		if(UARTBuffer[1] == 'S'){
 			HAL_UART_Transmit(&huart2, (uint8_t *) &temperaturSolar, 8, HAL_MAX_DELAY);
-			UARTBuffer[0] = UARTBuffer[1] =0;
 		}
 		if(UARTBuffer[1] == 'R'){
 			HAL_UART_Transmit(&huart2, &relaisState, 1, HAL_MAX_DELAY);
-			UARTBuffer[0] = UARTBuffer[1] =0;
-		}
+			
+		}	
+	} 
+	UARTBuffer[0] = UARTBuffer[1] =0;
+	messageCount = 0;	
+		
 	} else {
 		
-		if(UARTBuffer[0] == 'S'){
-			temperaturSchwelle = (double)UARTBuffer[1];
-		}
-		if(UARTBuffer[0] == 'H'){
-			temperaturHysteresis = (double)UARTBuffer[1];
-		}	
+		messageCount ++;
+		
 	}
 	
 	

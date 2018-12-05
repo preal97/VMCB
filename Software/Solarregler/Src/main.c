@@ -71,19 +71,15 @@ volatile double temperaturSchwelle = 10.0;
 
 volatile uint8_t relaisState = 1;
 
-uint8_t UARTBuffer[2];
+uint8_t UARTBuffer[2] = {0,0};
 
-uint8_t Send = 0x44;
+CanRxMsgTypeDef CanRx;
+CanTxMsgTypeDef CanTx;
+CAN_FilterConfTypeDef filterConfig;
 
-CanTxMsgTypeDef TxMsg;
-CanRxMsgTypeDef RxMsg;
+
 
 	
-
-
-
-
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -144,6 +140,7 @@ int main(void)
 
 	HAL_GPIO_WritePin(GPIOB, (0x1 << 12), 1);
 	
+	// Initialization of the MAX PT100 Chips
 	MAXSolar.SPI_Handle = &hspi2;
 	MAXSolar.CS_Pin = GPIO_PIN_12;
 	MAXSolar.CS_GPIOx = GPIOB;
@@ -151,9 +148,39 @@ int main(void)
 	MAXSolar.RDY_GPIOx = GPIOB;
 	MAXSolar.referenceResistor = 430.0;
 	
+	
+	// Initialization of CAN Messages and Filter
+	hcan.pRxMsg = &CanRx;
+	hcan.pTxMsg = &CanTx;
+	hcan.pTxMsg->StdId = 0x100;
+	hcan.pTxMsg->ExtId = 0x00;
+	hcan.pTxMsg->RTR = CAN_RTR_DATA;
+	hcan.pTxMsg->IDE = CAN_ID_STD;
+	hcan.pTxMsg->DLC = 2; //Datenmenge
+	
+	
+	filterConfig.FilterNumber = 0;
+	filterConfig.FilterMode = CAN_FILTERMODE_IDLIST;
+	filterConfig.FilterIdLow = 0x00;
+	filterConfig.FilterIdHigh = 0x00;
+	filterConfig.FilterMaskIdLow = 0x00;
+	filterConfig.FilterMaskIdHigh = 0x00;
+	filterConfig.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+	filterConfig.FilterActivation = ENABLE;
+	filterConfig.BankNumber = 14;
+	
+	// Setup Filter
+	HAL_CAN_ConfigFilter(&hcan, &filterConfig);
+	
+	//Start Interrupt
+	HAL_CAN_Receive_IT(&hcan, CAN_FIFO0);
+	
+	
+	
+	// Timer start
 	HAL_TIM_Base_Start_IT(&htim2);
 	
-	HAL_UART_Receive_IT(&huart2, UARTBuffer, 2);
+	//HAL_UART_Receive_IT(&huart2, UARTBuffer, 2);
 	
 	
 
@@ -166,7 +193,10 @@ int main(void)
 		
 	
 	
-	
+	  HAL_Delay(2000);
+		hcan.pTxMsg->Data[0] = 10;
+		hcan.pTxMsg->Data[1] = 1;
+		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
 			
 		
 		
@@ -234,7 +264,7 @@ static void MX_CAN_Init(void)
 {
 
   hcan.Instance = CAN1;
-  hcan.Init.Prescaler = 16;
+  hcan.Init.Prescaler = 8;
   hcan.Init.Mode = CAN_MODE_LOOPBACK;
   hcan.Init.SJW = CAN_SJW_1TQ;
   hcan.Init.BS1 = CAN_BS1_12TQ;
