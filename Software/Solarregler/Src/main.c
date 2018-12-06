@@ -74,6 +74,8 @@ uint8_t relaisState = 0;
 
 uint8_t testId = 0;
 
+uint8_t testData[2] = {0};
+
 CanRxMsgTypeDef CanRx;
 CanTxMsgTypeDef CanTx;
 CAN_FilterConfTypeDef filterConfig;
@@ -172,7 +174,7 @@ int main(void)
 	hcan.pTxMsg->DLC = 2; //Datenmenge
 	
 	filterConfig.FilterNumber = 0;
-	filterConfig.FilterMode = CAN_FILTERMODE_IDLIST;
+	filterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
 	filterConfig.FilterIdLow = 0x00;
 	filterConfig.FilterIdHigh = 0x00;
 	filterConfig.FilterMaskIdLow = 0x00;
@@ -194,7 +196,8 @@ int main(void)
 	// Timer start
 	HAL_TIM_Base_Start_IT(&htim2);
 	
-	//HAL_UART_Receive_IT(&huart2, UARTBuffer, 2);
+		hcan.pTxMsg->Data[0] = 10;
+		hcan.pTxMsg->Data[1] = 1;
 	
 	
 
@@ -207,11 +210,11 @@ int main(void)
 		
 	
 	
-//	  HAL_Delay(2000);
-//		hcan.pTxMsg->Data[0] = 10;
-//		hcan.pTxMsg->Data[1] = 1;
-//		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
-//			
+	  HAL_Delay(2000);
+		hcan.pTxMsg->Data[0] += 1;
+		hcan.pTxMsg->Data[1] += 1;
+		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
+			
 		
 		
   /* USER CODE END WHILE */
@@ -488,6 +491,15 @@ uint8_t readCanIdDip(){
 	return canIdDip;
 }
 
+
+void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan){
+
+	
+	testData[0] = CanRx.Data[0];
+	testData[1] = CanRx.Data[1];
+	
+	HAL_CAN_Receive_IT(hcan, CAN_FIFO0);
+}
 
 
 

@@ -16309,12 +16309,11 @@ http://www.zetex.com&lt;p&gt;
 </net>
 <net name="RTD1+" class="0">
 <segment>
-<label x="287.02" y="86.36" size="1.778" layer="95" rot="R180" xref="yes"/>
-<wire x1="287.02" y1="86.36" x2="312.42" y2="86.36" width="0.1524" layer="91"/>
-<wire x1="312.42" y1="86.36" x2="312.42" y2="93.98" width="0.1524" layer="91"/>
-<wire x1="312.42" y1="93.98" x2="340.36" y2="93.98" width="0.1524" layer="91"/>
+<label x="284.48" y="96.52" size="1.778" layer="95" rot="R180" xref="yes"/>
+<wire x1="284.48" y1="96.52" x2="312.42" y2="96.52" width="0.1524" layer="91"/>
+<wire x1="312.42" y1="96.52" x2="340.36" y2="96.52" width="0.1524" layer="91"/>
 <pinref part="SJ1" gate="G$1" pin="3"/>
-<wire x1="340.36" y1="93.98" x2="340.36" y2="86.36" width="0.1524" layer="91"/>
+<wire x1="340.36" y1="96.52" x2="340.36" y2="86.36" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="RTD1-" class="0">
