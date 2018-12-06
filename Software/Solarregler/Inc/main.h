@@ -103,8 +103,6 @@
 
 /* USER CODE BEGIN Private defines */
 
-#define RELAIS_PORT GPIOA
-#define RELAIS_PIN GPIO_PIN_5
 
 /* USER CODE END Private defines */
 

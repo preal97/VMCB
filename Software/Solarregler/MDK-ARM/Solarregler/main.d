@@ -31,3 +31,4 @@ solarregler\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
 solarregler\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 solarregler\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 solarregler\main.o: ../Inc/MAX31865.h
+solarregler\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

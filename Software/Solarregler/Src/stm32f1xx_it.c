@@ -38,6 +38,7 @@
 /* USER CODE BEGIN 0 */
 
 #include "MAX31865.h"
+#include "string.h"
 
 /* USER CODE END 0 */
 
@@ -259,11 +260,21 @@ void CAN1_SCE_IRQHandler(void)
 void TIM2_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM2_IRQn 0 */
+	
 	extern MAX31865_TypeDef MAXSolar;
 	extern MAX31865_TypeDef MAXBuffer;
 	
 	extern double temperaturSolar;
 	extern double temperaturBuffer;
+	extern double hysteresisON;
+	extern double hysteresisOFF;
+	
+	extern uint8_t relaisState;
+	
+	char Message[75];
+	
+	//create message for uart
+	sprintf(Message, "Temperatur Solar: %.2f \n Temperatur Puffer: %.2f \n Status Pumpe: %d \n", temperaturSolar, temperaturBuffer, relaisState);
 	
 	HAL_GPIO_TogglePin(GPIOA, 0x1 << 5);
 	
@@ -271,8 +282,24 @@ void TIM2_IRQHandler(void)
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
+	
+	//read temperatur sensors
 	temperaturSolar = measureTemperatureOneShotConverted(&MAXSolar);
-	//temperaturBuffer = measureTemperatureOneShotConverted(&MAXBuffer);
+	temperaturBuffer = measureTemperatureOneShotConverted(&MAXBuffer);
+	
+	//decide to switch on the pump
+	if(relaisState == 0 && temperaturSolar > temperaturBuffer + hysteresisON){
+		relaisState = 1;
+		HAL_GPIO_WritePin(B1_GPIO_Port, B1_Pin, 1);
+	} else {
+		if (relaisState == 1 && temperaturBuffer >= temperaturSolar + hysteresisOFF)
+		relaisState = 0;
+		HAL_GPIO_WritePin(B1_GPIO_Port, B1_Pin, 1);
+	}
+	
+	//transmit data via uart
+	HAL_UART_Transmit(&huart2, (uint8_t*) Message, strlen(Message), HAL_MAX_DELAY);
+	
 	
   /* USER CODE END TIM2_IRQn 1 */
 }
@@ -297,44 +324,12 @@ void SPI2_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-	extern double temperaturSolar;
-	extern double temperaturBuffer;
-	extern double temperaturHysteresis;
-	extern double temperaturSchwelle;
-	extern uint8_t relaisState;
-	extern uint8_t UARTBuffer[2];
-	static uint8_t messageCount;
 	
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
 	
-  if(messageCount > 1){
-		
-	if(UARTBuffer[0] == 'R'){
-		if(UARTBuffer[1] == 'P'){
-			HAL_UART_Transmit(&huart2, (uint8_t *) &temperaturBuffer, 8, HAL_MAX_DELAY);
-		}
-		if(UARTBuffer[1] == 'S'){
-			HAL_UART_Transmit(&huart2, (uint8_t *) &temperaturSolar, 8, HAL_MAX_DELAY);
-		}
-		if(UARTBuffer[1] == 'R'){
-			HAL_UART_Transmit(&huart2, &relaisState, 1, HAL_MAX_DELAY);
-			
-		}	
-	} 
-	UARTBuffer[0] = UARTBuffer[1] =0;
-	messageCount = 0;	
-		
-	} else {
-		
-		messageCount ++;
-		
-	}
-	
-	
-	HAL_UART_Receive_IT(&huart2, UARTBuffer, 2);
-	HAL_GPIO_TogglePin(GPIOA, 0x1 << 5);
+  
   /* USER CODE END USART2_IRQn 1 */
 }
 

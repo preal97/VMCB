@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.7.0">
+<eagle version="9.1.3">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
+<setting keepoldvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
 <grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
@@ -15038,24 +15039,24 @@ http://www.zetex.com&lt;p&gt;
 <text x="106.68" y="173.355" size="1.27" layer="94">1+2</text>
 <text x="127" y="173.228" size="1.27" layer="94">2+3</text>
 <text x="154.94" y="170.18" size="3.81" layer="94">CAN-Adress Configuration</text>
-<wire x1="154.94" y1="157.48" x2="172.72" y2="157.48" width="0.1524" layer="94"/>
-<wire x1="154.94" y1="154.94" x2="205.74" y2="154.94" width="0.1524" layer="94"/>
-<wire x1="154.94" y1="152.4" x2="205.74" y2="152.4" width="0.1524" layer="94"/>
-<wire x1="154.94" y1="149.86" x2="172.72" y2="149.86" width="0.1524" layer="94"/>
-<wire x1="172.72" y1="149.86" x2="205.74" y2="149.86" width="0.1524" layer="94"/>
-<wire x1="154.94" y1="149.86" x2="154.94" y2="152.4" width="0.1524" layer="94"/>
-<wire x1="154.94" y1="152.4" x2="154.94" y2="154.94" width="0.1524" layer="94"/>
-<wire x1="154.94" y1="154.94" x2="154.94" y2="157.48" width="0.1524" layer="94"/>
-<wire x1="205.74" y1="149.86" x2="205.74" y2="152.4" width="0.1524" layer="94"/>
-<wire x1="205.74" y1="152.4" x2="205.74" y2="154.94" width="0.1524" layer="94"/>
-<wire x1="172.72" y1="149.86" x2="172.72" y2="157.48" width="0.1524" layer="94"/>
-<text x="155.321" y="150.241" size="1.4224" layer="94">Bit 8-1</text>
-<text x="155.321" y="152.781" size="1.4224" layer="94">Bit 11-9</text>
-<text x="172.974" y="150.368" size="1.4224" layer="94">C7-C0 Hardware Dip-Switch</text>
-<text x="173.101" y="152.781" size="1.4224" layer="94">Defined by Software</text>
-<text x="155.321" y="155.448" size="1.4224" layer="94">MSB to LSB</text>
-<text x="200.66" y="142.24" size="1.4224" layer="94">intern GPIO PULL-UP</text>
-<text x="170.18" y="121.92" size="1.4224" layer="94">8-Bit Dip-Switch</text>
+<wire x1="177.8" y1="160.02" x2="195.58" y2="160.02" width="0.1524" layer="94"/>
+<wire x1="177.8" y1="157.48" x2="228.6" y2="157.48" width="0.1524" layer="94"/>
+<wire x1="177.8" y1="154.94" x2="228.6" y2="154.94" width="0.1524" layer="94"/>
+<wire x1="177.8" y1="152.4" x2="195.58" y2="152.4" width="0.1524" layer="94"/>
+<wire x1="195.58" y1="152.4" x2="228.6" y2="152.4" width="0.1524" layer="94"/>
+<wire x1="177.8" y1="152.4" x2="177.8" y2="154.94" width="0.1524" layer="94"/>
+<wire x1="177.8" y1="154.94" x2="177.8" y2="157.48" width="0.1524" layer="94"/>
+<wire x1="177.8" y1="157.48" x2="177.8" y2="160.02" width="0.1524" layer="94"/>
+<wire x1="228.6" y1="152.4" x2="228.6" y2="154.94" width="0.1524" layer="94"/>
+<wire x1="228.6" y1="154.94" x2="228.6" y2="157.48" width="0.1524" layer="94"/>
+<wire x1="195.58" y1="152.4" x2="195.58" y2="160.02" width="0.1524" layer="94"/>
+<text x="178.181" y="152.781" size="1.4224" layer="94">Bit 8-1</text>
+<text x="178.181" y="155.321" size="1.4224" layer="94">Bit 11-9</text>
+<text x="195.834" y="152.908" size="1.4224" layer="94">C7-C0 Hardware Dip-Switch</text>
+<text x="195.961" y="155.321" size="1.4224" layer="94">Defined by Software</text>
+<text x="178.181" y="157.988" size="1.4224" layer="94">MSB to LSB</text>
+<text x="223.52" y="144.78" size="1.4224" layer="94">intern GPIO PULL-UP</text>
+<text x="193.04" y="124.46" size="1.4224" layer="94">8-Bit Dip-Switch</text>
 <text x="60.96" y="53.34" size="2.54" layer="94">(without Signalconverter)</text>
 <text x="60.96" y="48.26" size="2.54" layer="94">(without ESD-Protection)</text>
 </plain>
@@ -15173,8 +15174,8 @@ http://www.zetex.com&lt;p&gt;
 <attribute name="MPN" x="15.24" y="160.02" size="1.778" layer="96" display="off"/>
 </instance>
 <instance part="+3V4" gate="G$1" x="20.32" y="165.1" rot="MR0"/>
-<instance part="GND16" gate="1" x="200.66" y="109.22" rot="R90"/>
-<instance part="DIP21" gate="G$1" x="160.02" y="116.84"/>
+<instance part="GND16" gate="1" x="223.52" y="111.76" rot="R90"/>
+<instance part="DIP21" gate="G$1" x="182.88" y="119.38"/>
 </instances>
 <busses>
 </busses>
@@ -15217,36 +15218,36 @@ http://www.zetex.com&lt;p&gt;
 </segment>
 <segment>
 <pinref part="DIP21" gate="G$1" pin="P$16"/>
-<wire x1="162.56" y1="111.76" x2="162.56" y2="109.22" width="0.1524" layer="91"/>
-<wire x1="162.56" y1="109.22" x2="167.64" y2="109.22" width="0.1524" layer="91"/>
+<wire x1="185.42" y1="114.3" x2="185.42" y2="111.76" width="0.1524" layer="91"/>
+<wire x1="185.42" y1="111.76" x2="190.5" y2="111.76" width="0.1524" layer="91"/>
 <pinref part="DIP21" gate="G$1" pin="P$15"/>
-<wire x1="167.64" y1="109.22" x2="167.64" y2="111.76" width="0.1524" layer="91"/>
-<wire x1="167.64" y1="109.22" x2="172.72" y2="109.22" width="0.1524" layer="91"/>
-<junction x="167.64" y="109.22"/>
+<wire x1="190.5" y1="111.76" x2="190.5" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="190.5" y1="111.76" x2="195.58" y2="111.76" width="0.1524" layer="91"/>
+<junction x="190.5" y="111.76"/>
 <pinref part="DIP21" gate="G$1" pin="P$14"/>
-<wire x1="172.72" y1="109.22" x2="172.72" y2="111.76" width="0.1524" layer="91"/>
-<wire x1="172.72" y1="109.22" x2="177.8" y2="109.22" width="0.1524" layer="91"/>
-<junction x="172.72" y="109.22"/>
+<wire x1="195.58" y1="111.76" x2="195.58" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="195.58" y1="111.76" x2="200.66" y2="111.76" width="0.1524" layer="91"/>
+<junction x="195.58" y="111.76"/>
 <pinref part="DIP21" gate="G$1" pin="P$13"/>
-<wire x1="177.8" y1="109.22" x2="177.8" y2="111.76" width="0.1524" layer="91"/>
-<wire x1="177.8" y1="109.22" x2="182.88" y2="109.22" width="0.1524" layer="91"/>
-<junction x="177.8" y="109.22"/>
+<wire x1="200.66" y1="111.76" x2="200.66" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="200.66" y1="111.76" x2="205.74" y2="111.76" width="0.1524" layer="91"/>
+<junction x="200.66" y="111.76"/>
 <pinref part="DIP21" gate="G$1" pin="P$12"/>
-<wire x1="182.88" y1="109.22" x2="182.88" y2="111.76" width="0.1524" layer="91"/>
-<wire x1="182.88" y1="109.22" x2="187.96" y2="109.22" width="0.1524" layer="91"/>
-<junction x="182.88" y="109.22"/>
+<wire x1="205.74" y1="111.76" x2="205.74" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="205.74" y1="111.76" x2="210.82" y2="111.76" width="0.1524" layer="91"/>
+<junction x="205.74" y="111.76"/>
 <pinref part="DIP21" gate="G$1" pin="P$11"/>
-<wire x1="187.96" y1="109.22" x2="187.96" y2="111.76" width="0.1524" layer="91"/>
-<wire x1="187.96" y1="109.22" x2="193.04" y2="109.22" width="0.1524" layer="91"/>
-<junction x="187.96" y="109.22"/>
+<wire x1="210.82" y1="111.76" x2="210.82" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="210.82" y1="111.76" x2="215.9" y2="111.76" width="0.1524" layer="91"/>
+<junction x="210.82" y="111.76"/>
 <pinref part="DIP21" gate="G$1" pin="P$10"/>
-<wire x1="193.04" y1="109.22" x2="193.04" y2="111.76" width="0.1524" layer="91"/>
+<wire x1="215.9" y1="111.76" x2="215.9" y2="114.3" width="0.1524" layer="91"/>
 <pinref part="GND16" gate="1" pin="GND"/>
-<wire x1="193.04" y1="109.22" x2="198.12" y2="109.22" width="0.1524" layer="91"/>
-<junction x="193.04" y="109.22"/>
+<wire x1="215.9" y1="111.76" x2="220.98" y2="111.76" width="0.1524" layer="91"/>
+<junction x="215.9" y="111.76"/>
 <pinref part="DIP21" gate="G$1" pin="P$9"/>
-<wire x1="198.12" y1="109.22" x2="198.12" y2="111.76" width="0.1524" layer="91"/>
-<junction x="198.12" y="109.22"/>
+<wire x1="220.98" y1="111.76" x2="220.98" y2="114.3" width="0.1524" layer="91"/>
+<junction x="220.98" y="111.76"/>
 </segment>
 </net>
 <net name="+3V3" class="0">
@@ -15526,57 +15527,57 @@ http://www.zetex.com&lt;p&gt;
 <net name="C0" class="0">
 <segment>
 <pinref part="DIP21" gate="G$1" pin="P$8"/>
-<wire x1="198.12" y1="132.08" x2="198.12" y2="134.62" width="0.1524" layer="91"/>
-<label x="198.12" y="134.62" size="1.778" layer="95" rot="R90" xref="yes"/>
+<wire x1="220.98" y1="134.62" x2="220.98" y2="137.16" width="0.1524" layer="91"/>
+<label x="220.98" y="137.16" size="1.778" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
 <net name="C1" class="0">
 <segment>
 <pinref part="DIP21" gate="G$1" pin="P$7"/>
-<wire x1="193.04" y1="134.62" x2="193.04" y2="132.08" width="0.1524" layer="91"/>
-<label x="193.04" y="134.62" size="1.778" layer="95" rot="R90" xref="yes"/>
+<wire x1="215.9" y1="137.16" x2="215.9" y2="134.62" width="0.1524" layer="91"/>
+<label x="215.9" y="137.16" size="1.778" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
 <net name="C2" class="0">
 <segment>
 <pinref part="DIP21" gate="G$1" pin="P$6"/>
-<wire x1="187.96" y1="134.62" x2="187.96" y2="132.08" width="0.1524" layer="91"/>
-<label x="187.96" y="134.62" size="1.778" layer="95" rot="R90" xref="yes"/>
+<wire x1="210.82" y1="137.16" x2="210.82" y2="134.62" width="0.1524" layer="91"/>
+<label x="210.82" y="137.16" size="1.778" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
 <net name="C3" class="0">
 <segment>
 <pinref part="DIP21" gate="G$1" pin="P$5"/>
-<wire x1="182.88" y1="134.62" x2="182.88" y2="132.08" width="0.1524" layer="91"/>
-<label x="182.88" y="134.62" size="1.778" layer="95" rot="R90" xref="yes"/>
+<wire x1="205.74" y1="137.16" x2="205.74" y2="134.62" width="0.1524" layer="91"/>
+<label x="205.74" y="137.16" size="1.778" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
 <net name="C4" class="0">
 <segment>
 <pinref part="DIP21" gate="G$1" pin="P$4"/>
-<wire x1="177.8" y1="134.62" x2="177.8" y2="132.08" width="0.1524" layer="91"/>
-<label x="177.8" y="134.62" size="1.778" layer="95" rot="R90" xref="yes"/>
+<wire x1="200.66" y1="137.16" x2="200.66" y2="134.62" width="0.1524" layer="91"/>
+<label x="200.66" y="137.16" size="1.778" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
 <net name="C5" class="0">
 <segment>
 <pinref part="DIP21" gate="G$1" pin="P$3"/>
-<wire x1="172.72" y1="134.62" x2="172.72" y2="132.08" width="0.1524" layer="91"/>
-<label x="172.72" y="134.62" size="1.778" layer="95" rot="R90" xref="yes"/>
+<wire x1="195.58" y1="137.16" x2="195.58" y2="134.62" width="0.1524" layer="91"/>
+<label x="195.58" y="137.16" size="1.778" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
 <net name="C6" class="0">
 <segment>
 <pinref part="DIP21" gate="G$1" pin="P$2"/>
-<wire x1="167.64" y1="134.62" x2="167.64" y2="132.08" width="0.1524" layer="91"/>
-<label x="167.64" y="134.62" size="1.778" layer="95" rot="R90" xref="yes"/>
+<wire x1="190.5" y1="137.16" x2="190.5" y2="134.62" width="0.1524" layer="91"/>
+<label x="190.5" y="137.16" size="1.778" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
 <net name="C7" class="0">
 <segment>
 <pinref part="DIP21" gate="G$1" pin="1"/>
-<wire x1="162.56" y1="134.62" x2="162.56" y2="132.08" width="0.1524" layer="91"/>
-<label x="162.56" y="134.62" size="1.778" layer="95" rot="R90" xref="yes"/>
+<wire x1="185.42" y1="137.16" x2="185.42" y2="134.62" width="0.1524" layer="91"/>
+<label x="185.42" y="137.16" size="1.778" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
 </nets>

@@ -44,6 +44,7 @@
 
 #include "MAX31865.h"
 #include "stdio.h"
+#include "string.h"
 
 /* USER CODE END Includes */
 
@@ -59,19 +60,19 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
-volatile double temperaturSolar = 0.0;
-volatile double temperaturBuffer = 0.0;
+double temperaturSolar = 0.0;
+double temperaturBuffer = 0.0;
 
-volatile MAX31865_TypeDef MAXSolar;
-volatile MAX31865_TypeDef MAXBuffer;
+MAX31865_TypeDef MAXSolar;
+MAX31865_TypeDef MAXBuffer;
 
 
-volatile double temperaturHysteresis = 0.0;
-volatile double temperaturSchwelle = 10.0;
+double hysteresisON = 10.0;
+double hysteresisOFF = 2.0;
 
-volatile uint8_t relaisState = 1;
+uint8_t relaisState = 0;
 
-uint8_t UARTBuffer[2] = {0,0};
+uint8_t testId = 0;
 
 CanRxMsgTypeDef CanRx;
 CanTxMsgTypeDef CanTx;
@@ -93,6 +94,8 @@ static void MX_I2C1_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
+
+uint8_t readCanIdDip(void);
 
 /* USER CODE END PFP */
 
@@ -138,15 +141,25 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
-	HAL_GPIO_WritePin(GPIOB, (0x1 << 12), 1);
 	
 	// Initialization of the MAX PT100 Chips
 	MAXSolar.SPI_Handle = &hspi2;
-	MAXSolar.CS_Pin = GPIO_PIN_12;
-	MAXSolar.CS_GPIOx = GPIOB;
-	MAXSolar.RDY_Pin = GPIO_PIN_11;
-	MAXSolar.RDY_GPIOx = GPIOB;
+	MAXSolar.CS_Pin = CS_1_Pin;
+	MAXSolar.CS_GPIOx = CS_1_GPIO_Port;
+	MAXSolar.RDY_Pin = DRDY_1_Pin;
+	MAXSolar.RDY_GPIOx = DRDY_1_GPIO_Port;
 	MAXSolar.referenceResistor = 430.0;
+	
+	MAXBuffer.SPI_Handle = &hspi2;
+	MAXBuffer.CS_Pin = CS_2_Pin;
+	MAXBuffer.CS_GPIOx = CS_2_GPIO_Port;
+	MAXBuffer.RDY_Pin = DRDY_2_Pin;
+	MAXBuffer.RDY_GPIOx = DRDY_2_GPIO_Port;
+	MAXBuffer.referenceResistor = 430.0;
+	
+	measureTemperatureOneShotConverted(&MAXSolar);
+	measureTemperatureOneShotConverted(&MAXBuffer);
+	/////////////////////////////////////////////////
 	
 	
 	// Initialization of CAN Messages and Filter
@@ -158,7 +171,6 @@ int main(void)
 	hcan.pTxMsg->IDE = CAN_ID_STD;
 	hcan.pTxMsg->DLC = 2; //Datenmenge
 	
-	
 	filterConfig.FilterNumber = 0;
 	filterConfig.FilterMode = CAN_FILTERMODE_IDLIST;
 	filterConfig.FilterIdLow = 0x00;
@@ -168,6 +180,8 @@ int main(void)
 	filterConfig.FilterFIFOAssignment = CAN_FILTER_FIFO0;
 	filterConfig.FilterActivation = ENABLE;
 	filterConfig.BankNumber = 14;
+	/////////////////////////////////////////////////
+	
 	
 	// Setup Filter
 	HAL_CAN_ConfigFilter(&hcan, &filterConfig);
@@ -175,7 +189,7 @@ int main(void)
 	//Start Interrupt
 	HAL_CAN_Receive_IT(&hcan, CAN_FIFO0);
 	
-	
+	testId = readCanIdDip();
 	
 	// Timer start
 	HAL_TIM_Base_Start_IT(&htim2);
@@ -193,11 +207,11 @@ int main(void)
 		
 	
 	
-	  HAL_Delay(2000);
-		hcan.pTxMsg->Data[0] = 10;
-		hcan.pTxMsg->Data[1] = 1;
-		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
-			
+//	  HAL_Delay(2000);
+//		hcan.pTxMsg->Data[0] = 10;
+//		hcan.pTxMsg->Data[1] = 1;
+//		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
+//			
 		
 		
   /* USER CODE END WHILE */
@@ -351,7 +365,7 @@ static void MX_USART2_UART_Init(void)
 
   huart2.Instance = USART2;
   huart2.Init.BaudRate = 9600;
-  huart2.Init.WordLength = UART_WORDLENGTH_9B;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
   huart2.Init.Mode = UART_MODE_TX_RX;
@@ -389,10 +403,10 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, LD2_Pin|LD1_Pin|CS_1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(DRDY_2_GPIO_Port, DRDY_2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(CS_2_GPIO_Port, CS_2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, CS_3_Pin|GPIO_PIN_12, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
@@ -407,39 +421,51 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : DRDY_1_Pin C4_Pin C3_Pin C2_Pin 
-                           C1_Pin C0_Pin */
-  GPIO_InitStruct.Pin = DRDY_1_Pin|C4_Pin|C3_Pin|C2_Pin 
-                          |C1_Pin|C0_Pin;
+  /*Configure GPIO pin : DRDY_1_Pin */
+  GPIO_InitStruct.Pin = DRDY_1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(DRDY_1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : DRDY_2_Pin */
   GPIO_InitStruct.Pin = DRDY_2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(DRDY_2_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : CS_2_Pin C7_Pin C6_Pin C5_Pin */
-  GPIO_InitStruct.Pin = CS_2_Pin|C7_Pin|C6_Pin|C5_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  /*Configure GPIO pin : CS_2_Pin */
+  GPIO_InitStruct.Pin = CS_2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(CS_2_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : DRDY_3_Pin CS_3_Pin PB11 */
-  GPIO_InitStruct.Pin = DRDY_3_Pin|CS_3_Pin|GPIO_PIN_11;
+  /*Configure GPIO pins : DRDY_3_Pin PB11 */
+  GPIO_InitStruct.Pin = DRDY_3_Pin|GPIO_PIN_11;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PB12 */
-  GPIO_InitStruct.Pin = GPIO_PIN_12;
+  /*Configure GPIO pins : CS_3_Pin PB12 */
+  GPIO_InitStruct.Pin = CS_3_Pin|GPIO_PIN_12;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : C7_Pin C6_Pin C5_Pin */
+  GPIO_InitStruct.Pin = C7_Pin|C6_Pin|C5_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : C4_Pin C3_Pin C2_Pin C1_Pin 
+                           C0_Pin */
+  GPIO_InitStruct.Pin = C4_Pin|C3_Pin|C2_Pin|C1_Pin 
+                          |C0_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PB5 PB6 PB7 */
   GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
@@ -451,7 +477,16 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-
+uint8_t readCanIdDip(){
+	
+	uint8_t canIdDip;
+	
+	// read in the individual DIP ID Pins
+	canIdDip = (HAL_GPIO_ReadPin(C0_GPIO_Port, C0_Pin) << 0) | (HAL_GPIO_ReadPin(C1_GPIO_Port, C1_Pin) << 1) | (HAL_GPIO_ReadPin(C2_GPIO_Port, C2_Pin) << 2) | (HAL_GPIO_ReadPin(C3_GPIO_Port, C3_Pin) << 3);
+	canIdDip |= (HAL_GPIO_ReadPin(C4_GPIO_Port, C4_Pin) << 4) | (HAL_GPIO_ReadPin(C5_GPIO_Port, C5_Pin) << 5) | (HAL_GPIO_ReadPin(C6_GPIO_Port, C6_Pin) << 6) | (HAL_GPIO_ReadPin(C7_GPIO_Port, C7_Pin) << 7);
+	
+	return canIdDip;
+}
 
 
 

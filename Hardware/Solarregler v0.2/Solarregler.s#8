@@ -9729,33 +9729,34 @@ Source: va-serie.pdf.pdf</description>
 <pad name="P$2" x="1.1" y="0" drill="0.4"/>
 <circle x="0.57" y="0" radius="1.62788125" width="0.127" layer="21"/>
 </package>
-<package name="43.41.7">
-<wire x1="0" y1="0" x2="0" y2="10.2" width="0.127" layer="21"/>
-<wire x1="0" y1="10.2" x2="30.2" y2="10.2" width="0.127" layer="21"/>
-<wire x1="30.2" y1="10.2" x2="30.2" y2="0" width="0.127" layer="21"/>
-<wire x1="30.2" y1="0" x2="0" y2="0" width="0.127" layer="21"/>
-<wire x1="1.25" y1="4.5" x2="2.75" y2="4.5" width="0.127" layer="21"/>
-<wire x1="2.75" y1="4.5" x2="4.25" y2="4.5" width="0.127" layer="21"/>
-<wire x1="1.25" y1="5.75" x2="2.75" y2="5.75" width="0.127" layer="21"/>
-<wire x1="2.75" y1="5.75" x2="4.25" y2="5.75" width="0.127" layer="21"/>
-<wire x1="1.25" y1="5.75" x2="1.25" y2="4.5" width="0.127" layer="21"/>
-<wire x1="4.25" y1="5.75" x2="4.25" y2="4.5" width="0.127" layer="21"/>
-<wire x1="2.75" y1="4.5" x2="2.75" y2="2.75" width="0.127" layer="21"/>
-<wire x1="2.75" y1="5.75" x2="2.75" y2="7.5" width="0.127" layer="21"/>
-<wire x1="21.75" y1="7.45" x2="21.75" y2="6.85" width="0.127" layer="21"/>
-<wire x1="21.75" y1="6.8" x2="21.75" y2="5.1" width="0.127" layer="21"/>
-<wire x1="28.15" y1="7.45" x2="28.15" y2="5.1" width="0.127" layer="21"/>
-<wire x1="21.75" y1="5.1" x2="23.75" y2="5.1" width="0.127" layer="21"/>
-<wire x1="26.2" y1="5.1" x2="28.15" y2="5.1" width="0.127" layer="21"/>
-<wire x1="24.95" y1="2.75" x2="24.95" y2="4.1" width="0.127" layer="21"/>
-<wire x1="24.95" y1="4.1" x2="23.35" y2="5.7" width="0.127" layer="21"/>
-<pad name="A1" x="2.75" y="1.35" drill="1" diameter="2.1844"/>
-<pad name="A2" x="2.75" y="8.85" drill="1" diameter="2.1844"/>
-<pad name="12" x="21.75" y="8.85" drill="1" diameter="2.1844"/>
-<pad name="14" x="28.15" y="8.85" drill="1" diameter="2.1844"/>
-<pad name="11" x="24.95" y="1.35" drill="1" diameter="2.1844"/>
-<text x="1" y="11" size="1.27" layer="21">&gt;NAME</text>
-<text x="1" y="-2" size="1.27" layer="21">&gt;VALUE</text>
+<package name="SERIES_34">
+<wire x1="-2.5" y1="1" x2="-2.5" y2="-4" width="0.127" layer="21"/>
+<wire x1="25.5" y1="1" x2="-2.5" y2="1" width="0.127" layer="21"/>
+<pad name="A2" x="-1.4" y="-2.7" drill="0.8" diameter="1.27"/>
+<pad name="A1" x="2.35" y="-2.7" drill="0.8" diameter="1.27"/>
+<pad name="12" x="13.6" y="-2.7" drill="0.8" diameter="1.27"/>
+<pad name="11" x="18.6" y="-2.7" drill="0.8" diameter="1.27"/>
+<pad name="14" x="23.6" y="-2.7" drill="0.8" diameter="1.27"/>
+<wire x1="-2.5" y1="-4" x2="25.5" y2="-4" width="0.127" layer="21"/>
+<wire x1="25.5" y1="1" x2="25.5" y2="-4" width="0.127" layer="21"/>
+<wire x1="-0.5" y1="0" x2="1.5" y2="0" width="0.127" layer="21"/>
+<wire x1="1.5" y1="0" x2="1.5" y2="-1" width="0.127" layer="21"/>
+<wire x1="1.5" y1="-1" x2="1.5" y2="-2" width="0.127" layer="21"/>
+<wire x1="1.5" y1="-2" x2="-0.5" y2="-2" width="0.127" layer="21"/>
+<wire x1="-0.5" y1="-2" x2="-0.5" y2="-1" width="0.127" layer="21"/>
+<wire x1="-0.5" y1="-1" x2="-0.5" y2="0" width="0.127" layer="21"/>
+<wire x1="-1.5" y1="-2" x2="-1.5" y2="-1" width="0.127" layer="21"/>
+<wire x1="-1.5" y1="-1" x2="-0.5" y2="-1" width="0.127" layer="21"/>
+<wire x1="2.5" y1="-2" x2="2.5" y2="-1" width="0.127" layer="21"/>
+<wire x1="2.5" y1="-1" x2="1.5" y2="-1" width="0.127" layer="21"/>
+<wire x1="13.5" y1="-2" x2="13.5" y2="0" width="0.127" layer="21"/>
+<wire x1="13.5" y1="0" x2="17.5" y2="0" width="0.127" layer="21"/>
+<wire x1="19.5" y1="0" x2="23.5" y2="0" width="0.127" layer="21"/>
+<wire x1="23.5" y1="0" x2="23.5" y2="-2" width="0.127" layer="21"/>
+<wire x1="18.5" y1="-2" x2="18.5" y2="-1" width="0.127" layer="21"/>
+<wire x1="17.5" y1="0" x2="18.5" y2="-1" width="0.127" layer="21"/>
+<wire x1="17.5" y1="0" x2="17" y2="0.5" width="0.127" layer="21"/>
+<text x="4" y="-3.5" size="1.27" layer="21">Series 34</text>
 </package>
 </packages>
 <symbols>
@@ -9775,29 +9776,24 @@ Source: va-serie.pdf.pdf</description>
 <pin name="2" x="5.08" y="2.54" visible="off" length="point" rot="R180"/>
 <wire x1="2.921" y1="0.508" x2="2.159" y2="0.508" width="0.254" layer="94"/>
 </symbol>
-<symbol name="43.41.7">
+<symbol name="AZ962">
+<wire x1="-15.24" y1="2.54" x2="-5.08" y2="2.54" width="0.254" layer="94"/>
 <wire x1="-5.08" y1="2.54" x2="-5.08" y2="-2.54" width="0.254" layer="94"/>
-<wire x1="-5.08" y1="-2.54" x2="0" y2="-2.54" width="0.254" layer="94"/>
-<wire x1="0" y1="-2.54" x2="5.08" y2="-2.54" width="0.254" layer="94"/>
-<wire x1="5.08" y1="-2.54" x2="5.08" y2="2.54" width="0.254" layer="94"/>
-<wire x1="5.08" y1="2.54" x2="0" y2="2.54" width="0.254" layer="94"/>
-<wire x1="0" y1="2.54" x2="-5.08" y2="2.54" width="0.254" layer="94"/>
-<wire x1="10.16" y1="7.62" x2="10.16" y2="2.54" width="0.254" layer="94"/>
-<wire x1="10.16" y1="-7.62" x2="10.16" y2="-2.54" width="0.254" layer="94"/>
-<wire x1="15.24" y1="0" x2="10.16" y2="2.54" width="0.254" layer="94"/>
-<wire x1="10.16" y1="2.54" x2="8.89" y2="3.175" width="0.254" layer="94"/>
-<wire x1="10.16" y1="7.62" x2="20.32" y2="7.62" width="0.254" layer="94"/>
-<wire x1="15.24" y1="0" x2="20.32" y2="0" width="0.254" layer="94"/>
-<wire x1="10.16" y1="-7.62" x2="20.32" y2="-7.62" width="0.254" layer="94"/>
-<wire x1="0" y1="-2.54" x2="0" y2="-7.62" width="0.254" layer="94"/>
-<wire x1="0" y1="7.62" x2="0" y2="2.54" width="0.254" layer="94"/>
-<text x="1.905" y="9.525" size="1.778" layer="95">&gt;NAME</text>
-<text x="1.905" y="-10.16" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="A1" x="0" y="7.62" visible="pad" length="middle" rot="R270"/>
-<pin name="A2" x="0" y="-7.62" visible="pad" length="middle" rot="R90"/>
-<pin name="12" x="20.32" y="7.62" visible="pad" length="middle" rot="R180"/>
-<pin name="11" x="20.32" y="0" visible="pad" length="middle" rot="R180"/>
-<pin name="14" x="20.32" y="-7.62" visible="pad" length="middle" rot="R180"/>
+<wire x1="-5.08" y1="-2.54" x2="-15.24" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="-15.24" y1="-2.54" x2="-15.24" y2="2.54" width="0.254" layer="94"/>
+<wire x1="20.32" y1="0" x2="15.24" y2="0" width="0.254" layer="94"/>
+<wire x1="15.24" y1="0" x2="6.35" y2="3.175" width="0.254" layer="94"/>
+<wire x1="20.32" y1="7.62" x2="7.62" y2="7.62" width="0.254" layer="94"/>
+<wire x1="20.32" y1="-7.62" x2="7.62" y2="-7.62" width="0.254" layer="94"/>
+<wire x1="7.62" y1="-7.62" x2="7.62" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="7.62" y1="7.62" x2="7.62" y2="2.54" width="0.254" layer="94"/>
+<text x="-2.54" y="12.7" size="1.778" layer="94">&gt;NAME</text>
+<text x="-2.54" y="-12.7" size="1.778" layer="94">&gt;VALUE</text>
+<pin name="A1" x="-10.16" y="7.62" length="middle" rot="R270"/>
+<pin name="A2" x="-10.16" y="-7.62" length="middle" rot="R90"/>
+<pin name="11" x="20.32" y="0" length="middle" rot="R180"/>
+<pin name="12" x="20.32" y="7.62" length="middle" rot="R180"/>
+<pin name="13" x="20.32" y="-7.62" length="middle" rot="R180"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -9835,16 +9831,16 @@ Source: va-serie.pdf.pdf</description>
 </device>
 </devices>
 </deviceset>
-<deviceset name="FINDER_43.41.7">
+<deviceset name="FINDER_34.51">
 <gates>
-<gate name="G$1" symbol="43.41.7" x="0" y="0"/>
+<gate name="G$1" symbol="AZ962" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="43.41.7">
+<device name="" package="SERIES_34">
 <connects>
 <connect gate="G$1" pin="11" pad="11"/>
 <connect gate="G$1" pin="12" pad="12"/>
-<connect gate="G$1" pin="14" pad="14"/>
+<connect gate="G$1" pin="13" pad="14"/>
 <connect gate="G$1" pin="A1" pad="A1"/>
 <connect gate="G$1" pin="A2" pad="A2"/>
 </connects>
@@ -14273,7 +14269,6 @@ http://www.zetex.com&lt;p&gt;
 <part name="Q1-2" library="000_eigene_Bauteile" deviceset="QUARZ_RTC_TH" device="" value="32.768kHz"/>
 <part name="U$1" library="logos_neu" deviceset="OTH-LOGO13X7" device=""/>
 <part name="GND27" library="supply1" deviceset="GND" device=""/>
-<part name="U$3" library="000_eigene_Bauteile" deviceset="FINDER_43.41.7" device=""/>
 <part name="RTC_HOUSING_GND" library="testpad" deviceset="TPSQ" device="TP20SQ"/>
 <part name="SJ1" library="jumper" deviceset="SJ2W" device=""/>
 <part name="SJ2" library="jumper" deviceset="SJ2W" device=""/>
@@ -14285,6 +14280,7 @@ http://www.zetex.com&lt;p&gt;
 <part name="GND14" library="supply1" deviceset="GND" device=""/>
 <part name="GND15" library="supply1" deviceset="GND" device=""/>
 <part name="GND18" library="supply1" deviceset="GND" device=""/>
+<part name="U$2" library="000_eigene_Bauteile" deviceset="FINDER_34.51" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -15724,9 +15720,9 @@ http://www.zetex.com&lt;p&gt;
 <attribute name="MPN" x="81.28" y="78.74" size="1.778" layer="96" display="off"/>
 </instance>
 <instance part="GND27" gate="1" x="81.28" y="73.66"/>
-<instance part="U$3" gate="G$1" x="177.8" y="96.52"/>
 <instance part="T1-PDTC124EU" gate="A" x="175.26" y="76.2"/>
 <instance part="D1" gate="G$1" x="167.64" y="96.52" rot="R90"/>
+<instance part="U$2" gate="G$1" x="187.96" y="96.52"/>
 </instances>
 <busses>
 </busses>
@@ -15805,9 +15801,9 @@ http://www.zetex.com&lt;p&gt;
 <label x="165.1" y="137.16" size="1.778" layer="95" rot="R180" xref="yes"/>
 <pinref part="D1" gate="G$1" pin="C"/>
 <wire x1="167.64" y1="99.06" x2="167.64" y2="104.14" width="0.1524" layer="91"/>
-<pinref part="U$3" gate="G$1" pin="A1"/>
 <wire x1="167.64" y1="104.14" x2="177.8" y2="104.14" width="0.1524" layer="91"/>
 <wire x1="177.8" y1="137.16" x2="177.8" y2="104.14" width="0.1524" layer="91"/>
+<pinref part="U$2" gate="G$1" pin="A1"/>
 <junction x="177.8" y="104.14"/>
 </segment>
 </net>
@@ -15909,15 +15905,15 @@ http://www.zetex.com&lt;p&gt;
 <wire x1="218.44" y1="104.14" x2="218.44" y2="116.84" width="0.1524" layer="91"/>
 <wire x1="218.44" y1="116.84" x2="228.6" y2="116.84" width="0.1524" layer="91"/>
 <label x="228.6" y="116.84" size="1.778" layer="95" xref="yes"/>
-<pinref part="U$3" gate="G$1" pin="12"/>
-<wire x1="198.12" y1="104.14" x2="218.44" y2="104.14" width="0.1524" layer="91"/>
+<pinref part="U$2" gate="G$1" pin="12"/>
+<wire x1="208.28" y1="104.14" x2="218.44" y2="104.14" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="RELAIS_COM" class="1">
 <segment>
-<wire x1="198.12" y1="96.52" x2="228.6" y2="96.52" width="0.1524" layer="91"/>
 <label x="228.6" y="96.52" size="1.778" layer="95" xref="yes"/>
-<pinref part="U$3" gate="G$1" pin="11"/>
+<pinref part="U$2" gate="G$1" pin="11"/>
+<wire x1="208.28" y1="96.52" x2="228.6" y2="96.52" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="RELAIS_NO" class="1">
@@ -15925,8 +15921,8 @@ http://www.zetex.com&lt;p&gt;
 <wire x1="218.44" y1="88.9" x2="218.44" y2="76.2" width="0.1524" layer="91"/>
 <wire x1="218.44" y1="76.2" x2="228.6" y2="76.2" width="0.1524" layer="91"/>
 <label x="228.6" y="76.2" size="1.778" layer="95" xref="yes"/>
-<pinref part="U$3" gate="G$1" pin="14"/>
-<wire x1="198.12" y1="88.9" x2="218.44" y2="88.9" width="0.1524" layer="91"/>
+<pinref part="U$2" gate="G$1" pin="13"/>
+<wire x1="208.28" y1="88.9" x2="218.44" y2="88.9" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="RELAIS_ON" class="0">
@@ -15938,12 +15934,12 @@ http://www.zetex.com&lt;p&gt;
 </net>
 <net name="N$10" class="0">
 <segment>
-<pinref part="U$3" gate="G$1" pin="A2"/>
 <pinref part="T1-PDTC124EU" gate="A" pin="C"/>
 <wire x1="177.8" y1="88.9" x2="177.8" y2="81.28" width="0.1524" layer="91"/>
 <pinref part="D1" gate="G$1" pin="A"/>
 <wire x1="167.64" y1="93.98" x2="167.64" y2="88.9" width="0.1524" layer="91"/>
 <wire x1="167.64" y1="88.9" x2="177.8" y2="88.9" width="0.1524" layer="91"/>
+<pinref part="U$2" gate="G$1" pin="A2"/>
 <junction x="177.8" y="88.9"/>
 </segment>
 </net>
