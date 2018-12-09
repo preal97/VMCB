@@ -274,7 +274,6 @@ void TIM2_IRQHandler(void)
 	char Message[75];
 	
 	//create message for uart
-	sprintf(Message, "Temperatur Solar: %.2f \n Temperatur Puffer: %.2f \n Status Pumpe: %d \n", temperaturSolar, temperaturBuffer, relaisState);
 	
 	HAL_GPIO_TogglePin(GPIOA, 0x1 << 5);
 	
@@ -287,6 +286,9 @@ void TIM2_IRQHandler(void)
 	temperaturSolar = measureTemperatureOneShotConverted(&MAXSolar);
 	temperaturBuffer = measureTemperatureOneShotConverted(&MAXBuffer);
 	
+	//create message for uart
+	sprintf(Message, "Temperatur Solar: %.2f \nTemperatur Puffer: %.2f \nStatus Pumpe: %d \n", temperaturSolar, temperaturBuffer, relaisState);
+	
 	//decide to switch on the pump
 	if(relaisState == 0 && temperaturSolar > temperaturBuffer + hysteresisON){
 		relaisState = 1;
@@ -298,7 +300,18 @@ void TIM2_IRQHandler(void)
 	}
 	
 	//transmit data via uart
-	HAL_UART_Transmit(&huart2, (uint8_t*) Message, strlen(Message), HAL_MAX_DELAY);
+	//HAL_UART_Transmit(&huart2, (uint8_t*) Message, strlen(Message), HAL_MAX_DELAY);
+	
+	//transmit data via CAN
+		hcan.pTxMsg->Data[0] = (MAXSolar.faultDetected << 2) | (MAXBuffer.faultDetected << 1) | (relaisState << 0);
+	  hcan.pTxMsg->Data[1] = 1;
+		hcan.pTxMsg->Data[2] = 1;
+		hcan.pTxMsg->Data[3] = 1;
+		hcan.pTxMsg->Data[4] = 1;
+		hcan.pTxMsg->Data[5] = 1;
+		hcan.pTxMsg->Data[6] = 1;
+		hcan.pTxMsg->Data[7] = 1;
+		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
 	
 	
   /* USER CODE END TIM2_IRQn 1 */

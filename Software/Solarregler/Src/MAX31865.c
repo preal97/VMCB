@@ -3,6 +3,28 @@
 #include "stm32f1xx_hal.h"
 
 
+////////////////////////////////////////////////////////////////////////////////////////
+// MAX31865: Handle Struct for MAX31865 Chip
+// setupCodes: Bits to set in INIT. See Reference Manual or .h for more information
+//
+
+void initialize(MAX31865_TypeDef * MAX31865, uint8_t setupCodes){ // writes to configuration register of the Chip with the given setup codes
+	
+	singleByteWrite(CONFIG_REGISTER_WRITE, setupCodes, MAX31865->SPI_Handle, MAX31865->CS_GPIOx, MAX31865->CS_Pin);
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////
+// MAX31865: Handle Struct for MAX31865 Chip
+
+void checkForFaults(MAX31865_TypeDef * MAX31865){
+	
+	MAX31865->faultDetected = singleByteRead(FAULT_STATUS_REGISTER_READ, MAX31865->SPI_Handle, MAX31865->CS_GPIOx, MAX31865->CS_Pin);
+}
+
+
+
 ///////////////////////////////////////////////////////////////////////////////////////
 // MAX31865: Handle Struct for MAX31865 Chip
 
@@ -29,7 +51,7 @@ double measureTemperatureOneShotConverted(MAX31865_TypeDef * MAX31865){  //measu
 uint16_t measureTemperatureOneShotAdcRaw(MAX31865_TypeDef * MAX31865){
 	uint16_t adcCount;
 	
-	singleByteWrite(CONFIG_REGISTER_WRITE, ONE_SHOT_CONFIG, MAX31865->SPI_Handle, MAX31865->CS_GPIOx, MAX31865->CS_Pin);
+	singleByteWrite(CONFIG_REGISTER_WRITE, ONE_SHOT|STANDARD_INIT, MAX31865->SPI_Handle, MAX31865->CS_GPIOx, MAX31865->CS_Pin);
 	
 	while(HAL_GPIO_ReadPin(MAX31865->RDY_GPIOx, MAX31865->RDY_Pin) == 1);
 	
@@ -86,6 +108,9 @@ uint8_t singleByteRead(uint8_t address, SPI_HandleTypeDef* SPI, GPIO_TypeDef *CS
 	return receiveData[1];
 	
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////////
 
 
 

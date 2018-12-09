@@ -66,7 +66,6 @@ double temperaturBuffer = 0.0;
 MAX31865_TypeDef MAXSolar;
 MAX31865_TypeDef MAXBuffer;
 
-
 double hysteresisON = 10.0;
 double hysteresisOFF = 2.0;
 
@@ -159,26 +158,35 @@ int main(void)
 	MAXBuffer.RDY_GPIOx = DRDY_2_GPIO_Port;
 	MAXBuffer.referenceResistor = 430.0;
 	
-	measureTemperatureOneShotConverted(&MAXSolar);
-	measureTemperatureOneShotConverted(&MAXBuffer);
+	initialize(&MAXSolar, STANDARD_INIT);
+	initialize(&MAXBuffer, STANDARD_INIT);
+	
+	checkForFaults(&MAXSolar);
+	checkForFaults(&MAXBuffer);
+	
 	/////////////////////////////////////////////////
 	
 	
 	// Initialization of CAN Messages and Filter
-	hcan.pRxMsg = &CanRx;
 	hcan.pTxMsg = &CanTx;
-	hcan.pTxMsg->StdId = 0x100;
-	hcan.pTxMsg->ExtId = 0x00;
+	hcan.pTxMsg->StdId = 0x1;
+	hcan.pTxMsg->ExtId = 0x0;
 	hcan.pTxMsg->RTR = CAN_RTR_DATA;
 	hcan.pTxMsg->IDE = CAN_ID_STD;
-	hcan.pTxMsg->DLC = 2; //Datenmenge
+	hcan.pTxMsg->DLC = 8; //Datenmenge max 8
 	
-	filterConfig.FilterNumber = 0;
-	filterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
-	filterConfig.FilterIdLow = 0x00;
-	filterConfig.FilterIdHigh = 0x00;
-	filterConfig.FilterMaskIdLow = 0x00;
-	filterConfig.FilterMaskIdHigh = 0x00;
+	hcan.pRxMsg = &CanRx;
+	hcan.pRxMsg->IDE = CAN_ID_STD;
+	hcan.pRxMsg->FIFONumber = CAN_FIFO0;
+	hcan.pRxMsg->FMI = 1;
+	
+	filterConfig.FilterNumber = 1;
+	filterConfig.FilterMode = CAN_FILTERMODE_IDLIST;
+	filterConfig.FilterIdLow = 0x1 << 5; // wegen Fehler? offset der ID um 5 Bits
+	filterConfig.FilterIdHigh = 0x0;
+	filterConfig.FilterMaskIdLow = 0x0;
+	filterConfig.FilterMaskIdHigh = 0x0;
+	filterConfig.FilterScale = CAN_FILTERSCALE_16BIT;
 	filterConfig.FilterFIFOAssignment = CAN_FILTER_FIFO0;
 	filterConfig.FilterActivation = ENABLE;
 	filterConfig.BankNumber = 14;
@@ -196,8 +204,7 @@ int main(void)
 	// Timer start
 	HAL_TIM_Base_Start_IT(&htim2);
 	
-		hcan.pTxMsg->Data[0] = 10;
-		hcan.pTxMsg->Data[1] = 1;
+
 	
 	
 
@@ -209,11 +216,6 @@ int main(void)
   {
 		
 	
-	
-	  HAL_Delay(2000);
-		hcan.pTxMsg->Data[0] += 1;
-		hcan.pTxMsg->Data[1] += 1;
-		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
 			
 		
 		
