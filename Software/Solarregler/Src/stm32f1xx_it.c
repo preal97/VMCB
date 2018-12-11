@@ -264,10 +264,10 @@ void TIM2_IRQHandler(void)
 	extern MAX31865_TypeDef MAXSolar;
 	extern MAX31865_TypeDef MAXBuffer;
 	
-	extern double temperaturSolar;
-	extern double temperaturBuffer;
-	extern double hysteresisON;
-	extern double hysteresisOFF;
+	extern float temperaturSolar;
+	extern float temperaturBuffer;
+	extern float hysteresisON;
+	extern float hysteresisOFF;
 	
 	extern uint8_t relaisState;
 	
@@ -304,13 +304,10 @@ void TIM2_IRQHandler(void)
 	
 	//transmit data via CAN
 		hcan.pTxMsg->Data[0] = (MAXSolar.faultDetected << 2) | (MAXBuffer.faultDetected << 1) | (relaisState << 0);
-	  hcan.pTxMsg->Data[1] = 1;
-		hcan.pTxMsg->Data[2] = 1;
-		hcan.pTxMsg->Data[3] = 1;
-		hcan.pTxMsg->Data[4] = 1;
-		hcan.pTxMsg->Data[5] = 1;
-		hcan.pTxMsg->Data[6] = 1;
-		hcan.pTxMsg->Data[7] = 1;
+	  hcan.pTxMsg->Data[1] = *((uint8_t *) &temperaturSolar);
+		hcan.pTxMsg->Data[2] = *(((uint8_t *) &temperaturSolar) + 1);
+		hcan.pTxMsg->Data[3] = *(((uint8_t *) &temperaturSolar) + 2);
+		hcan.pTxMsg->Data[4] = *(((uint8_t *) &temperaturSolar) + 3);
 		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
 	
 	

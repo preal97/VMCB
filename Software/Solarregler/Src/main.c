@@ -60,20 +60,19 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
-double temperaturSolar = 0.0;
-double temperaturBuffer = 0.0;
+float temperaturSolar = 0.0;
+float temperaturBuffer = 0.0;
 
 MAX31865_TypeDef MAXSolar;
 MAX31865_TypeDef MAXBuffer;
 
-double hysteresisON = 10.0;
-double hysteresisOFF = 2.0;
+float hysteresisON = 10.0;
+float hysteresisOFF = 2.0;
 
 uint8_t relaisState = 0;
 
-uint8_t testId = 0;
-
 uint8_t testData[2] = {0};
+
 
 CanRxMsgTypeDef CanRx;
 CanTxMsgTypeDef CanTx;
@@ -97,6 +96,7 @@ static void MX_I2C1_Init(void);
 /* Private function prototypes -----------------------------------------------*/
 
 uint8_t readCanIdDip(void);
+void reenableCanInterrupt(CAN_HandleTypeDef* hcan);
 
 /* USER CODE END PFP */
 
@@ -500,11 +500,33 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan){
 	testData[0] = CanRx.Data[0];
 	testData[1] = CanRx.Data[1];
 	
-	HAL_CAN_Receive_IT(hcan, CAN_FIFO0);
+	
+	
+	reenableCanInterrupt(hcan);
+	
 }
 
 
-
+void reenableCanInterrupt(CAN_HandleTypeDef* hcan){
+	
+		if(hcan->State == HAL_CAN_STATE_BUSY_TX){
+			hcan->State = HAL_CAN_STATE_BUSY_TX_RX0; 
+		} else {
+			hcan->State = HAL_CAN_STATE_BUSY_RX0;
+			hcan->ErrorCode = HAL_CAN_ERROR_NONE;
+		
+			__HAL_CAN_ENABLE_IT(hcan, CAN_IT_EWG);		
+			__HAL_CAN_ENABLE_IT(hcan, CAN_IT_EPV);
+			__HAL_CAN_ENABLE_IT(hcan, CAN_IT_BOF);
+			__HAL_CAN_ENABLE_IT(hcan, CAN_IT_LEC);
+			__HAL_CAN_ENABLE_IT(hcan, CAN_IT_ERR);
+			__HAL_CAN_ENABLE_IT(hcan, CAN_IT_EWG);
+		
+	}
+	
+	__HAL_CAN_ENABLE_IT(hcan, CAN_IT_FMP0);
+	
+}
 
 /* USER CODE END 4 */
 

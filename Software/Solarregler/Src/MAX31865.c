@@ -29,7 +29,7 @@ void checkForFaults(MAX31865_TypeDef * MAX31865){
 // MAX31865: Handle Struct for MAX31865 Chip
 
 
-double measureTemperatureOneShotConverted(MAX31865_TypeDef * MAX31865){  //measures temperature and gives back value in °C
+float measureTemperatureOneShotConverted(MAX31865_TypeDef * MAX31865){  //measures temperature and gives back value in °C
 	double temperature;
 	double percentage;
 	double resistance;
@@ -40,7 +40,7 @@ double measureTemperatureOneShotConverted(MAX31865_TypeDef * MAX31865){  //measu
 	
 	temperature = (resistance - 100.0) * 2.597;
 	
-	return temperature;
+	return (float)temperature;
 }
 
 

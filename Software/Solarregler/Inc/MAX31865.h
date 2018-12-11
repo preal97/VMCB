@@ -45,7 +45,7 @@ typedef struct{
 void initialize(MAX31865_TypeDef * MAX31865, uint8_t setupCodes);
 void checkForFaults(MAX31865_TypeDef * MAX31865);
 
-double measureTemperatureOneShotConverted(MAX31865_TypeDef * MAX31865);
+float measureTemperatureOneShotConverted(MAX31865_TypeDef * MAX31865);
 uint16_t measureTemperatureOneShotAdcRaw(MAX31865_TypeDef * MAX31865);
 
 void singleByteWrite(uint8_t address, uint8_t data, SPI_HandleTypeDef* SPI, GPIO_TypeDef *CS_GPIOx, uint16_t CS_Pin);
