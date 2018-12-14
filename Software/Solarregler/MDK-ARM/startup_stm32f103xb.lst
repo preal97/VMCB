@@ -497,9 +497,9 @@ ARM Macro Assembler    Page 8
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
 ork --depend=solarregler\startup_stm32f103xb.d -osolarregler\startup_stm32f103x
-b.o -IC:\Users\Alex\Documents\GitHub\VMCB\Software\Solarregler\MDK-ARM\RTE\_Sol
+b.o -IC:\Users\user\Documents\GitHub\VMCB\Software\Solarregler\MDK-ARM\RTE\_Sol
 arregler -IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.0\CMSIS\Include -IC:\Keil_v5\ARM\P
-ACK\Keil\STM32F1xx_DFP\2.1.0\Device\Include --predefine="__EVAL SETA 1" --prede
+ACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include --predefine="__EVAL SETA 1" --prede
 fine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 522" --predefine="
 _RTE_ SETA 1" --predefine="STM32F10X_MD SETA 1" --list=startup_stm32f103xb.lst 
 startup_stm32f103xb.s

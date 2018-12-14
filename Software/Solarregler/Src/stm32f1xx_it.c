@@ -271,7 +271,7 @@ void TIM2_IRQHandler(void)
 	
 	extern uint8_t relaisState;
 	
-	char Message[75];
+	//char Message[75];
 	
 	//create message for uart
 	
@@ -287,7 +287,7 @@ void TIM2_IRQHandler(void)
 	temperaturBuffer = measureTemperatureOneShotConverted(&MAXBuffer);
 	
 	//create message for uart
-	sprintf(Message, "Temperatur Solar: %.2f \nTemperatur Puffer: %.2f \nStatus Pumpe: %d \n", temperaturSolar, temperaturBuffer, relaisState);
+	//sprintf(Message, "Temperatur Solar: %.2f \nTemperatur Puffer: %.2f \nStatus Pumpe: %d \n", temperaturSolar, temperaturBuffer, relaisState);
 	
 	//decide to switch on the pump
 	if(relaisState == 0 && temperaturSolar > temperaturBuffer + hysteresisON){
@@ -303,14 +303,41 @@ void TIM2_IRQHandler(void)
 	//HAL_UART_Transmit(&huart2, (uint8_t*) Message, strlen(Message), HAL_MAX_DELAY);
 	
 	//transmit data via CAN
-		hcan.pTxMsg->Data[0] = (MAXSolar.faultDetected << 2) | (MAXBuffer.faultDetected << 1) | (relaisState << 0);
+		hcan.pTxMsg->StdId = 0x123;
+		hcan.pTxMsg->DLC = 5;
+		hcan.pTxMsg->Data[0] = MAXSolar.faultDetected;
 	  hcan.pTxMsg->Data[1] = *((uint8_t *) &temperaturSolar);
 		hcan.pTxMsg->Data[2] = *(((uint8_t *) &temperaturSolar) + 1);
 		hcan.pTxMsg->Data[3] = *(((uint8_t *) &temperaturSolar) + 2);
 		hcan.pTxMsg->Data[4] = *(((uint8_t *) &temperaturSolar) + 3);
 		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
 	
+		hcan.pTxMsg->StdId = 0x124;
+		hcan.pTxMsg->DLC = 5;
+		hcan.pTxMsg->Data[0] = MAXBuffer.faultDetected ;
+	  hcan.pTxMsg->Data[1] = *((uint8_t *) &temperaturBuffer);
+		hcan.pTxMsg->Data[2] = *(((uint8_t *) &temperaturBuffer) + 1);
+		hcan.pTxMsg->Data[3] = *(((uint8_t *) &temperaturBuffer) + 2);
+		hcan.pTxMsg->Data[4] = *(((uint8_t *) &temperaturBuffer) + 3);
+		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
 	
+		hcan.pTxMsg->StdId = 0x125;
+		hcan.pTxMsg->DLC = 8;
+	  hcan.pTxMsg->Data[0] = *((uint8_t *) &hysteresisON);
+		hcan.pTxMsg->Data[1] = *(((uint8_t *) &hysteresisON) + 1);
+		hcan.pTxMsg->Data[2] = *(((uint8_t *) &hysteresisON) + 2);
+		hcan.pTxMsg->Data[3] = *(((uint8_t *) &hysteresisON) + 3);
+		hcan.pTxMsg->Data[4] = *((uint8_t *) &hysteresisOFF);
+		hcan.pTxMsg->Data[5] = *(((uint8_t *) &hysteresisOFF) + 1);
+		hcan.pTxMsg->Data[6] = *(((uint8_t *) &hysteresisOFF) + 2);
+		hcan.pTxMsg->Data[7] = *(((uint8_t *) &hysteresisOFF) + 3);
+		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
+	
+		hcan.pTxMsg->StdId = 0x127;
+		hcan.pTxMsg->DLC = 1;
+	  hcan.pTxMsg->Data[0] = relaisState;
+		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
+		
   /* USER CODE END TIM2_IRQn 1 */
 }
 

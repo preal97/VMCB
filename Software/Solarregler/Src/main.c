@@ -169,11 +169,11 @@ int main(void)
 	
 	// Initialization of CAN Messages and Filter
 	hcan.pTxMsg = &CanTx;
-	hcan.pTxMsg->StdId = 0x1;
+	hcan.pTxMsg->StdId = 0x123;
 	hcan.pTxMsg->ExtId = 0x0;
 	hcan.pTxMsg->RTR = CAN_RTR_DATA;
 	hcan.pTxMsg->IDE = CAN_ID_STD;
-	hcan.pTxMsg->DLC = 8; //Datenmenge max 8
+	hcan.pTxMsg->DLC = 5; //Datenmenge max 8
 	
 	hcan.pRxMsg = &CanRx;
 	hcan.pRxMsg->IDE = CAN_ID_STD;
@@ -182,7 +182,7 @@ int main(void)
 	
 	filterConfig.FilterNumber = 1;
 	filterConfig.FilterMode = CAN_FILTERMODE_IDLIST;
-	filterConfig.FilterIdLow = 0x1 << 5; // wegen Fehler? offset der ID um 5 Bits
+	filterConfig.FilterIdLow = 0x126 << 5; // wegen Fehler? offset der ID um 5 Bits
 	filterConfig.FilterIdHigh = 0x0;
 	filterConfig.FilterMaskIdLow = 0x0;
 	filterConfig.FilterMaskIdHigh = 0x0;
@@ -199,7 +199,6 @@ int main(void)
 	//Start Interrupt
 	HAL_CAN_Receive_IT(&hcan, CAN_FIFO0);
 	
-	testId = readCanIdDip();
 	
 	// Timer start
 	HAL_TIM_Base_Start_IT(&htim2);
@@ -216,7 +215,6 @@ int main(void)
   {
 		
 	
-			
 		
 		
   /* USER CODE END WHILE */
@@ -283,11 +281,11 @@ static void MX_CAN_Init(void)
 {
 
   hcan.Instance = CAN1;
-  hcan.Init.Prescaler = 8;
-  hcan.Init.Mode = CAN_MODE_LOOPBACK;
+  hcan.Init.Prescaler = 6;
+  hcan.Init.Mode = CAN_MODE_NORMAL;
   hcan.Init.SJW = CAN_SJW_1TQ;
-  hcan.Init.BS1 = CAN_BS1_12TQ;
-  hcan.Init.BS2 = CAN_BS2_5TQ;
+  hcan.Init.BS1 = CAN_BS1_9TQ;
+  hcan.Init.BS2 = CAN_BS2_2TQ;
   hcan.Init.TTCM = DISABLE;
   hcan.Init.ABOM = DISABLE;
   hcan.Init.AWUM = DISABLE;
@@ -496,9 +494,30 @@ uint8_t readCanIdDip(){
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan){
 
+if(hcan->pRxMsg->StdId == 0x126){
+	uint8_t * ON = (uint8_t *) &hysteresisON;
+	uint8_t * OFF = (uint8_t *) &hysteresisOFF;
 	
-	testData[0] = CanRx.Data[0];
-	testData[1] = CanRx.Data[1];
+	*ON = hcan->pRxMsg->Data[0];
+
+	*(ON + 1) = hcan->pRxMsg->Data[1];
+
+	*(ON + 2) = hcan->pRxMsg->Data[2];
+
+	*(ON + 3) = hcan->pRxMsg->Data[3];
+
+	
+	*OFF = hcan->pRxMsg->Data[4];
+
+	*(OFF + 1) = hcan->pRxMsg->Data[5];
+
+	*(OFF + 2) = hcan->pRxMsg->Data[6];
+
+	*(OFF + 3) = hcan->pRxMsg->Data[7];
+	
+
+}
+	
 	
 	
 	

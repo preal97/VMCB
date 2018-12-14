@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/Users/Alex/Documents/GitHub/VMCB/Software/Solarregler/Inc
+HeaderPath=C:/Users/user/Documents/GitHub/VMCB/Software/Solarregler/Inc
 HeaderFiles=stm32f1xx_it.h;stm32f1xx_hal_conf.h;main.h;
-SourcePath=C:/Users/Alex/Documents/GitHub/VMCB/Software/Solarregler/Src
+SourcePath=C:/Users/user/Documents/GitHub/VMCB/Software/Solarregler/Src
 SourceFiles=stm32f1xx_it.c;stm32f1xx_hal_msp.c;main.c;
 
 [PreviousLibFiles]
