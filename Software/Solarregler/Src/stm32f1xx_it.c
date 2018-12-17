@@ -266,10 +266,17 @@ void TIM2_IRQHandler(void)
 	
 	extern float temperaturSolar;
 	extern float temperaturBuffer;
+	
+	extern float temperaturBufferMax;
+	extern float temperaturSolarMin;
+	
 	extern float hysteresisON;
 	extern float hysteresisOFF;
 	
 	extern uint8_t relaisState;
+	extern uint8_t controllerActivated;
+	
+	extern uint16_t CanBaseAdress;
 	
 	//char Message[75];
 	
@@ -282,6 +289,9 @@ void TIM2_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
 	
+	checkForFaults(&MAXSolar);
+	checkForFaults(&MAXBuffer);
+	
 	//read temperatur sensors
 	temperaturSolar = measureTemperatureOneShotConverted(&MAXSolar);
 	temperaturBuffer = measureTemperatureOneShotConverted(&MAXBuffer);
@@ -290,38 +300,53 @@ void TIM2_IRQHandler(void)
 	//sprintf(Message, "Temperatur Solar: %.2f \nTemperatur Puffer: %.2f \nStatus Pumpe: %d \n", temperaturSolar, temperaturBuffer, relaisState);
 	
 	//decide to switch on the pump
-	if(relaisState == 0 && temperaturSolar > temperaturBuffer + hysteresisON){
-		relaisState = 1;
-		HAL_GPIO_WritePin(B1_GPIO_Port, B1_Pin, 1);
-	} else {
-		if (relaisState == 1 && temperaturBuffer >= temperaturSolar + hysteresisOFF)
-		relaisState = 0;
-		HAL_GPIO_WritePin(B1_GPIO_Port, B1_Pin, 1);
+if(controllerActivated){
+	if(relaisState == 0){
+		if(( temperaturSolar >= temperaturBuffer + hysteresisON) && (temperaturSolar >= temperaturSolarMin) && (temperaturBuffer <= temperaturBufferMax)){
+			relaisState = 1;
+			HAL_GPIO_WritePin(B1_GPIO_Port, B1_Pin, 1);
+		} else {
+			relaisState = 0;
+			HAL_GPIO_WritePin(B1_GPIO_Port, B1_Pin, 0);
 	}
+}
+	if(relaisState == 1){
+		if ((temperaturBuffer >= temperaturSolar + hysteresisOFF) || (temperaturSolar < temperaturSolarMin) || (temperaturBuffer > temperaturBufferMax)){
+			relaisState = 0;
+			HAL_GPIO_WritePin(B1_GPIO_Port, B1_Pin, 0);
+		} else {
+			relaisState = 1;
+			HAL_GPIO_WritePin(B1_GPIO_Port, B1_Pin, 1);		
+		}
+	}
+} else {
+	relaisState = 0;
+	HAL_GPIO_WritePin(B1_GPIO_Port, B1_Pin, 0);
+}
 	
 	//transmit data via uart
 	//HAL_UART_Transmit(&huart2, (uint8_t*) Message, strlen(Message), HAL_MAX_DELAY);
 	
 	//transmit data via CAN
-		hcan.pTxMsg->StdId = 0x123;
+		hcan.pTxMsg->StdId = (CanBaseAdress);
 		hcan.pTxMsg->DLC = 5;
 		hcan.pTxMsg->Data[0] = MAXSolar.faultDetected;
 	  hcan.pTxMsg->Data[1] = *((uint8_t *) &temperaturSolar);
 		hcan.pTxMsg->Data[2] = *(((uint8_t *) &temperaturSolar) + 1);
 		hcan.pTxMsg->Data[3] = *(((uint8_t *) &temperaturSolar) + 2);
 		hcan.pTxMsg->Data[4] = *(((uint8_t *) &temperaturSolar) + 3);
-		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
+		HAL_CAN_Transmit(&hcan, 10);
 	
-		hcan.pTxMsg->StdId = 0x124;
+		hcan.pTxMsg->StdId = (CanBaseAdress + 0x1);
 		hcan.pTxMsg->DLC = 5;
 		hcan.pTxMsg->Data[0] = MAXBuffer.faultDetected ;
 	  hcan.pTxMsg->Data[1] = *((uint8_t *) &temperaturBuffer);
 		hcan.pTxMsg->Data[2] = *(((uint8_t *) &temperaturBuffer) + 1);
 		hcan.pTxMsg->Data[3] = *(((uint8_t *) &temperaturBuffer) + 2);
 		hcan.pTxMsg->Data[4] = *(((uint8_t *) &temperaturBuffer) + 3);
-		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
+		HAL_CAN_Transmit(&hcan, 10);
 	
-		hcan.pTxMsg->StdId = 0x125;
+		hcan.pTxMsg->StdId = (CanBaseAdress + 0x2);
 		hcan.pTxMsg->DLC = 8;
 	  hcan.pTxMsg->Data[0] = *((uint8_t *) &hysteresisON);
 		hcan.pTxMsg->Data[1] = *(((uint8_t *) &hysteresisON) + 1);
@@ -331,12 +356,29 @@ void TIM2_IRQHandler(void)
 		hcan.pTxMsg->Data[5] = *(((uint8_t *) &hysteresisOFF) + 1);
 		hcan.pTxMsg->Data[6] = *(((uint8_t *) &hysteresisOFF) + 2);
 		hcan.pTxMsg->Data[7] = *(((uint8_t *) &hysteresisOFF) + 3);
-		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
+		HAL_CAN_Transmit(&hcan, 10);
 	
-		hcan.pTxMsg->StdId = 0x127;
+		hcan.pTxMsg->StdId = (CanBaseAdress + 0x4);
 		hcan.pTxMsg->DLC = 1;
 	  hcan.pTxMsg->Data[0] = relaisState;
-		HAL_CAN_Transmit(&hcan, HAL_MAX_DELAY);
+		HAL_CAN_Transmit(&hcan, 10);
+		
+		hcan.pTxMsg->StdId = (CanBaseAdress + 0x5);
+		hcan.pTxMsg->DLC = 8;
+	  hcan.pTxMsg->Data[0] = *((uint8_t *) &temperaturBufferMax);
+		hcan.pTxMsg->Data[1] = *(((uint8_t *) &temperaturBufferMax) + 1);
+		hcan.pTxMsg->Data[2] = *(((uint8_t *) &temperaturBufferMax) + 2);
+		hcan.pTxMsg->Data[3] = *(((uint8_t *) &temperaturBufferMax) + 3);
+		hcan.pTxMsg->Data[4] = *((uint8_t *) &temperaturSolarMin);
+		hcan.pTxMsg->Data[5] = *(((uint8_t *) &temperaturSolarMin) + 1);
+		hcan.pTxMsg->Data[6] = *(((uint8_t *) &temperaturSolarMin) + 2);
+		hcan.pTxMsg->Data[7] = *(((uint8_t *) &temperaturSolarMin) + 3);
+		HAL_CAN_Transmit(&hcan, 10);
+			
+		hcan.pTxMsg->StdId = (CanBaseAdress + 0x6);
+		hcan.pTxMsg->DLC = 1;
+	  hcan.pTxMsg->Data[0] = *((uint8_t *) &controllerActivated);
+		HAL_CAN_Transmit(&hcan, 10);
 		
   /* USER CODE END TIM2_IRQn 1 */
 }

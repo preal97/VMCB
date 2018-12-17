@@ -7,6 +7,8 @@
 "solarregler\stm32f1xx_hal_gpio_ex.o"
 "solarregler\stm32f1xx_hal_can.o"
 "solarregler\stm32f1xx_hal_i2c.o"
+"solarregler\stm32f1xx_hal_rtc.o"
+"solarregler\stm32f1xx_hal_rtc_ex.o"
 "solarregler\stm32f1xx_hal_spi.o"
 "solarregler\stm32f1xx_hal_spi_ex.o"
 "solarregler\stm32f1xx_hal_tim.o"

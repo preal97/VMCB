@@ -51,6 +51,8 @@
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan;
 
+RTC_HandleTypeDef hrtc;
+
 SPI_HandleTypeDef hspi2;
 
 TIM_HandleTypeDef htim2;
@@ -63,22 +65,29 @@ UART_HandleTypeDef huart2;
 float temperaturSolar = 0.0;
 float temperaturBuffer = 0.0;
 
-MAX31865_TypeDef MAXSolar;
-MAX31865_TypeDef MAXBuffer;
+float temperaturSolarMin = 50;
+float temperaturBufferMax = 90;
 
 float hysteresisON = 10.0;
 float hysteresisOFF = 2.0;
 
+MAX31865_TypeDef MAXSolar;
+MAX31865_TypeDef MAXBuffer;
+
 uint8_t relaisState = 0;
 
-uint8_t testData[2] = {0};
+uint8_t controllerActivated = 0;
+
+int onTime = 0;
+
+uint16_t CanBaseAdress = 0x123;
 
 
 CanRxMsgTypeDef CanRx;
 CanTxMsgTypeDef CanTx;
 CAN_FilterConfTypeDef filterConfig;
 
-
+RTC_TimeTypeDef sTime;
 
 	
 /* USER CODE END PV */
@@ -91,6 +100,7 @@ static void MX_SPI2_Init(void);
 static void MX_CAN_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_I2C1_Init(void);
+static void MX_RTC_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -140,6 +150,7 @@ int main(void)
   MX_CAN_Init();
   MX_TIM2_Init();
   MX_I2C1_Init();
+  MX_RTC_Init();
   /* USER CODE BEGIN 2 */
 
 	
@@ -166,10 +177,11 @@ int main(void)
 	
 	/////////////////////////////////////////////////
 	
+	//CanBaseAdress = readCanIdDip();
 	
 	// Initialization of CAN Messages and Filter
 	hcan.pTxMsg = &CanTx;
-	hcan.pTxMsg->StdId = 0x123;
+	hcan.pTxMsg->StdId = CanBaseAdress + 0x1;
 	hcan.pTxMsg->ExtId = 0x0;
 	hcan.pTxMsg->RTR = CAN_RTR_DATA;
 	hcan.pTxMsg->IDE = CAN_ID_STD;
@@ -182,9 +194,9 @@ int main(void)
 	
 	filterConfig.FilterNumber = 1;
 	filterConfig.FilterMode = CAN_FILTERMODE_IDLIST;
-	filterConfig.FilterIdLow = 0x126 << 5; // wegen Fehler? offset der ID um 5 Bits
-	filterConfig.FilterIdHigh = 0x0;
-	filterConfig.FilterMaskIdLow = 0x0;
+	filterConfig.FilterIdLow = (CanBaseAdress + 0x3) << 5; // wegen Fehler? offset der ID um 5 Bits
+	filterConfig.FilterIdHigh = (CanBaseAdress + 0x7) << 5;
+	filterConfig.FilterMaskIdLow = (CanBaseAdress + 0x8) << 5;
 	filterConfig.FilterMaskIdHigh = 0x0;
 	filterConfig.FilterScale = CAN_FILTERSCALE_16BIT;
 	filterConfig.FilterFIFOAssignment = CAN_FILTER_FIFO0;
@@ -202,6 +214,9 @@ int main(void)
 	
 	// Timer start
 	HAL_TIM_Base_Start_IT(&htim2);
+	
+	// RTC Start Time
+	HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD);
 	
 
 	
@@ -235,12 +250,14 @@ void SystemClock_Config(void)
 
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
+  RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
-  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV2;
+  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
@@ -256,10 +273,17 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -302,6 +326,54 @@ static void MX_CAN_Init(void)
 /* I2C1 init function */
 static void MX_I2C1_Init(void)
 {
+
+}
+
+/* RTC init function */
+static void MX_RTC_Init(void)
+{
+
+  /* USER CODE BEGIN RTC_Init 0 */
+
+  /* USER CODE END RTC_Init 0 */
+
+  RTC_TimeTypeDef sTime;
+  RTC_DateTypeDef DateToUpdate;
+
+  /* USER CODE BEGIN RTC_Init 1 */
+
+  /* USER CODE END RTC_Init 1 */
+
+    /**Initialize RTC Only 
+    */
+  hrtc.Instance = RTC;
+  hrtc.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
+  hrtc.Init.OutPut = RTC_OUTPUTSOURCE_NONE;
+  if (HAL_RTC_Init(&hrtc) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Initialize RTC and set the Time and Date 
+    */
+  sTime.Hours = 0x0;
+  sTime.Minutes = 0x0;
+  sTime.Seconds = 0x0;
+
+  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  DateToUpdate.WeekDay = RTC_WEEKDAY_MONDAY;
+  DateToUpdate.Month = RTC_MONTH_JANUARY;
+  DateToUpdate.Date = 0x1;
+  DateToUpdate.Year = 0x0;
+
+  if (HAL_RTC_SetDate(&hrtc, &DateToUpdate, RTC_FORMAT_BCD) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
 
 }
 
@@ -494,31 +566,125 @@ uint8_t readCanIdDip(){
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan){
 
-if(hcan->pRxMsg->StdId == 0x126){
-	uint8_t * ON = (uint8_t *) &hysteresisON;
-	uint8_t * OFF = (uint8_t *) &hysteresisOFF;
+if(hcan->pRxMsg->StdId == (CanBaseAdress + 0x3)){
+	float tmpON;
+	float tmpOFF;
+	uint8_t * ON = (uint8_t *) &tmpON;
+	uint8_t * OFF = (uint8_t *) &tmpOFF;
+
 	
 	*ON = hcan->pRxMsg->Data[0];
-
 	*(ON + 1) = hcan->pRxMsg->Data[1];
-
 	*(ON + 2) = hcan->pRxMsg->Data[2];
-
 	*(ON + 3) = hcan->pRxMsg->Data[3];
 
-	
 	*OFF = hcan->pRxMsg->Data[4];
-
 	*(OFF + 1) = hcan->pRxMsg->Data[5];
-
 	*(OFF + 2) = hcan->pRxMsg->Data[6];
-
 	*(OFF + 3) = hcan->pRxMsg->Data[7];
 	
+	if(tmpON <= MAX_ADJUSTABLE_TEMPERATURE && tmpON >= MIN_ADJUSTABLE_TEMPERATURE){
+		hysteresisON = tmpON;
+	} else {
+		if(tmpON > MAX_ADJUSTABLE_TEMPERATURE){
+			hysteresisON = MAX_ADJUSTABLE_TEMPERATURE;
+		}
+		if(tmpON < MIN_ADJUSTABLE_TEMPERATURE){
+			hysteresisON = MIN_ADJUSTABLE_TEMPERATURE;
+		}
+	}
 
+	
+	if(tmpOFF <= MAX_ADJUSTABLE_TEMPERATURE && tmpOFF >= MIN_ADJUSTABLE_TEMPERATURE){
+		hysteresisOFF = tmpOFF;
+	} else {
+		if(tmpOFF > MAX_ADJUSTABLE_TEMPERATURE){
+			hysteresisOFF = MAX_ADJUSTABLE_TEMPERATURE;
+		}
+		if(tmpOFF < MIN_ADJUSTABLE_TEMPERATURE){
+			hysteresisOFF = MIN_ADJUSTABLE_TEMPERATURE;
+		}
+	}
+	
+	
+		hcan->pTxMsg->StdId = (CanBaseAdress + 0x2);
+		hcan->pTxMsg->DLC = 8;
+	  hcan->pTxMsg->Data[0] = *((uint8_t *) &hysteresisON);
+		hcan->pTxMsg->Data[1] = *(((uint8_t *) &hysteresisON) + 1);
+		hcan->pTxMsg->Data[2] = *(((uint8_t *) &hysteresisON) + 2);
+		hcan->pTxMsg->Data[3] = *(((uint8_t *) &hysteresisON) + 3);
+		hcan->pTxMsg->Data[4] = *((uint8_t *) &hysteresisOFF);
+		hcan->pTxMsg->Data[5] = *(((uint8_t *) &hysteresisOFF) + 1);
+		hcan->pTxMsg->Data[6] = *(((uint8_t *) &hysteresisOFF) + 2);
+		hcan->pTxMsg->Data[7] = *(((uint8_t *) &hysteresisOFF) + 3);
+		HAL_CAN_Transmit(hcan, 10);
+	
 }
 	
+if(hcan->pRxMsg->StdId == (CanBaseAdress + 0x7)){
+	float tmpMAX;
+	float tmpMIN;
+	uint8_t * MAX = (uint8_t *) &tmpMAX;
+	uint8_t * MIN = (uint8_t *) &tmpMIN;
 	
+	*MAX = hcan->pRxMsg->Data[0];
+	*(MAX + 1) = hcan->pRxMsg->Data[1];
+	*(MAX + 2) = hcan->pRxMsg->Data[2];
+	*(MAX + 3) = hcan->pRxMsg->Data[3];
+
+	*MIN = hcan->pRxMsg->Data[4];
+	*(MIN + 1) = hcan->pRxMsg->Data[5];
+	*(MIN + 2) = hcan->pRxMsg->Data[6];
+	*(MIN + 3) = hcan->pRxMsg->Data[7];
+	
+	
+		if(tmpMAX <= MAX_ADJUSTABLE_TEMPERATURE && tmpMAX >= MIN_ADJUSTABLE_TEMPERATURE){
+		temperaturBufferMax = tmpMAX;
+		} else {
+		if(tmpMAX > MAX_ADJUSTABLE_TEMPERATURE){
+			temperaturBufferMax = MAX_ADJUSTABLE_TEMPERATURE;
+		}
+		if(tmpMAX < MIN_ADJUSTABLE_TEMPERATURE){
+			temperaturBufferMax = MIN_ADJUSTABLE_TEMPERATURE;
+		}
+	}
+		
+		if(tmpMIN <= MAX_ADJUSTABLE_TEMPERATURE && tmpMIN >= MIN_ADJUSTABLE_TEMPERATURE){
+		temperaturSolarMin = tmpMIN;
+		} else {
+		if(tmpMIN > MAX_ADJUSTABLE_TEMPERATURE){
+			temperaturSolarMin = MAX_ADJUSTABLE_TEMPERATURE;
+		}
+		if(tmpMIN < MIN_ADJUSTABLE_TEMPERATURE){
+			temperaturSolarMin = MIN_ADJUSTABLE_TEMPERATURE;
+		}
+	}
+	
+	
+		hcan->pTxMsg->StdId = (CanBaseAdress + 0x5);
+		hcan->pTxMsg->DLC = 8;
+	  hcan->pTxMsg->Data[0] = *((uint8_t *) &temperaturBufferMax);
+		hcan->pTxMsg->Data[1] = *(((uint8_t *) &temperaturBufferMax) + 1);
+		hcan->pTxMsg->Data[2] = *(((uint8_t *) &temperaturBufferMax) + 2);
+		hcan->pTxMsg->Data[3] = *(((uint8_t *) &temperaturBufferMax) + 3);
+		hcan->pTxMsg->Data[4] = *((uint8_t *) &temperaturSolarMin);
+		hcan->pTxMsg->Data[5] = *(((uint8_t *) &temperaturSolarMin) + 1);
+		hcan->pTxMsg->Data[6] = *(((uint8_t *) &temperaturSolarMin) + 2);
+		hcan->pTxMsg->Data[7] = *(((uint8_t *) &temperaturSolarMin) + 3);
+		HAL_CAN_Transmit(hcan, 10);
+	
+}
+
+if(hcan->pRxMsg->StdId == (CanBaseAdress + 0x8)){
+	
+	controllerActivated = hcan->pRxMsg->Data[0];
+	
+		hcan->pTxMsg->StdId = (CanBaseAdress + 0x6);
+		hcan->pTxMsg->DLC = 1;
+	  hcan->pTxMsg->Data[0] = *((uint8_t *) &controllerActivated);
+		HAL_CAN_Transmit(hcan, 10);
+	
+}
 	
 	
 	reenableCanInterrupt(hcan);

@@ -11,6 +11,10 @@
 void initialize(MAX31865_TypeDef * MAX31865, uint8_t setupCodes){ // writes to configuration register of the Chip with the given setup codes
 	
 	singleByteWrite(CONFIG_REGISTER_WRITE, setupCodes, MAX31865->SPI_Handle, MAX31865->CS_GPIOx, MAX31865->CS_Pin);
+	singleByteWrite(HIGH_FAULT_THRESHOLD_MSB_WRITE, 0x7F, MAX31865->SPI_Handle, MAX31865->CS_GPIOx, MAX31865->CS_Pin);
+	singleByteWrite(HIGH_FAULT_THRESHOLD_LSB_WRITE, 0xFF, MAX31865->SPI_Handle, MAX31865->CS_GPIOx, MAX31865->CS_Pin);
+	singleByteWrite(LOW_FAULT_THRESHOLD_MSB_WRITE, 0x00, MAX31865->SPI_Handle, MAX31865->CS_GPIOx, MAX31865->CS_Pin);
+	singleByteWrite(LOW_FAULT_THRESHOLD_LSB_WRITE, 0xFF, MAX31865->SPI_Handle, MAX31865->CS_GPIOx, MAX31865->CS_Pin);
 
 }
 
@@ -21,6 +25,9 @@ void initialize(MAX31865_TypeDef * MAX31865, uint8_t setupCodes){ // writes to c
 void checkForFaults(MAX31865_TypeDef * MAX31865){
 	
 	MAX31865->faultDetected = singleByteRead(FAULT_STATUS_REGISTER_READ, MAX31865->SPI_Handle, MAX31865->CS_GPIOx, MAX31865->CS_Pin);
+	if(MAX31865->faultDetected >= 1){
+		MAX31865->faultDetected = 1;
+	}
 }
 
 

@@ -103,6 +103,9 @@
 
 /* USER CODE BEGIN Private defines */
 
+#define MAX_ADJUSTABLE_TEMPERATURE 100.0
+#define MIN_ADJUSTABLE_TEMPERATURE 0.0
+
 
 /* USER CODE END Private defines */
 
