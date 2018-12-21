@@ -63,7 +63,10 @@ UART_HandleTypeDef huart2;
 /* Private variables ---------------------------------------------------------*/
 
 float temperaturSolar = 0.0;
+float temperaturSens3 = 0.0;
+float temperaturSolarMean = 0.0;
 float temperaturBuffer = 0.0;
+float temperaturBufferMean = 0.0;
 
 float temperaturSolarMin = 50;
 float temperaturBufferMax = 90;
@@ -73,10 +76,17 @@ float hysteresisOFF = 2.0;
 
 MAX31865_TypeDef MAXSolar;
 MAX31865_TypeDef MAXBuffer;
+MAX31865_TypeDef MAXSens3;
 
 uint8_t relaisState = 0;
 
 uint8_t controllerActivated = 0;
+
+uint8_t sens3Used = 0;
+
+uint8_t sens3Solar = 0;
+
+uint8_t sens3Buffer = 0;
 
 int onTime = 0;
 
@@ -87,7 +97,6 @@ CanRxMsgTypeDef CanRx;
 CanTxMsgTypeDef CanTx;
 CAN_FilterConfTypeDef filterConfig;
 
-RTC_TimeTypeDef sTime;
 
 	
 /* USER CODE END PV */
@@ -162,6 +171,13 @@ int main(void)
 	MAXSolar.RDY_GPIOx = DRDY_1_GPIO_Port;
 	MAXSolar.referenceResistor = 430.0;
 	
+	MAXSens3.SPI_Handle = &hspi2;
+	MAXSens3.CS_Pin = CS_3_Pin;
+	MAXSens3.CS_GPIOx = CS_3_GPIO_Port;
+	MAXSens3.RDY_Pin = DRDY_3_Pin;
+	MAXSens3.RDY_GPIOx = DRDY_3_GPIO_Port;
+	MAXSens3.referenceResistor = 430.0;
+	
 	MAXBuffer.SPI_Handle = &hspi2;
 	MAXBuffer.CS_Pin = CS_2_Pin;
 	MAXBuffer.CS_GPIOx = CS_2_GPIO_Port;
@@ -170,9 +186,12 @@ int main(void)
 	MAXBuffer.referenceResistor = 430.0;
 	
 	initialize(&MAXSolar, STANDARD_INIT);
+	//initialize(&MAXSens3, STANDARD_INIT);
 	initialize(&MAXBuffer, STANDARD_INIT);
+
 	
 	checkForFaults(&MAXSolar);
+	//checkForFaults(&MAXSens3);
 	checkForFaults(&MAXBuffer);
 	
 	/////////////////////////////////////////////////
@@ -193,10 +212,10 @@ int main(void)
 	hcan.pRxMsg->FMI = 1;
 	
 	filterConfig.FilterNumber = 1;
-	filterConfig.FilterMode = CAN_FILTERMODE_IDLIST;
-	filterConfig.FilterIdLow = (CanBaseAdress + 0x3) << 5; // wegen Fehler? offset der ID um 5 Bits
+	filterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
+	filterConfig.FilterIdLow = (CanBaseAdress | 0x00F) << 5; // wegen Fehler? offset der ID um 5 Bits
 	filterConfig.FilterIdHigh = (CanBaseAdress + 0x7) << 5;
-	filterConfig.FilterMaskIdLow = (CanBaseAdress + 0x8) << 5;
+	filterConfig.FilterMaskIdLow = (CanBaseAdress + 0xB) << 5;
 	filterConfig.FilterMaskIdHigh = 0x0;
 	filterConfig.FilterScale = CAN_FILTERSCALE_16BIT;
 	filterConfig.FilterFIFOAssignment = CAN_FILTER_FIFO0;
@@ -215,8 +234,6 @@ int main(void)
 	// Timer start
 	HAL_TIM_Base_Start_IT(&htim2);
 	
-	// RTC Start Time
-	HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD);
 	
 
 	
@@ -565,6 +582,96 @@ uint8_t readCanIdDip(){
 
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan){
+	
+	
+if(hcan->pRxMsg->StdId == (CanBaseAdress + 0xB)){
+	
+		if(sens3Used == 0){
+			
+		hcan->pTxMsg->StdId = (CanBaseAdress);
+		hcan->pTxMsg->DLC = 5;
+		hcan->pTxMsg->Data[0] = MAXSolar.faultDetected;
+	  hcan->pTxMsg->Data[1] = *((uint8_t *) &temperaturSolar);
+		hcan->pTxMsg->Data[2] = *(((uint8_t *) &temperaturSolar) + 1);
+		hcan->pTxMsg->Data[3] = *(((uint8_t *) &temperaturSolar) + 2);
+		hcan->pTxMsg->Data[4] = *(((uint8_t *) &temperaturSolar) + 3);
+		HAL_CAN_Transmit(hcan, 10);
+		
+		} else {
+		
+		if(sens3Solar && !sens3Buffer){
+			
+		hcan->pTxMsg->StdId = (CanBaseAdress);
+		hcan->pTxMsg->DLC = 5;
+		hcan->pTxMsg->Data[0] = MAXSolar.faultDetected | MAXSens3.faultDetected;
+	  hcan->pTxMsg->Data[1] = *((uint8_t *) &temperaturSolarMean);
+		hcan->pTxMsg->Data[2] = *(((uint8_t *) &temperaturSolarMean) + 1);
+		hcan->pTxMsg->Data[3] = *(((uint8_t *) &temperaturSolarMean) + 2);
+		hcan->pTxMsg->Data[4] = *(((uint8_t *) &temperaturSolarMean) + 3);
+		HAL_CAN_Transmit(hcan, 10);		
+					
+			}	else {
+				
+		if(sens3Buffer && !sens3Solar){
+			
+		hcan->pTxMsg->StdId = (CanBaseAdress);
+		hcan->pTxMsg->DLC = 5;
+		hcan->pTxMsg->Data[0] = MAXBuffer.faultDetected | MAXSens3.faultDetected;
+	  hcan->pTxMsg->Data[1] = *((uint8_t *) &temperaturBufferMean);
+		hcan->pTxMsg->Data[2] = *(((uint8_t *) &temperaturBufferMean) + 1);
+		hcan->pTxMsg->Data[3] = *(((uint8_t *) &temperaturBufferMean) + 2);
+		hcan->pTxMsg->Data[4] = *(((uint8_t *) &temperaturBufferMean) + 3);
+		HAL_CAN_Transmit(hcan, 10);	
+			
+				}
+			}		
+		}
+
+		hcan->pTxMsg->StdId = (CanBaseAdress + 0x1);
+		hcan->pTxMsg->DLC = 5;
+		hcan->pTxMsg->Data[0] = MAXBuffer.faultDetected ;
+	  hcan->pTxMsg->Data[1] = *((uint8_t *) &temperaturBuffer);
+		hcan->pTxMsg->Data[2] = *(((uint8_t *) &temperaturBuffer) + 1);
+		hcan->pTxMsg->Data[3] = *(((uint8_t *) &temperaturBuffer) + 2);
+		hcan->pTxMsg->Data[4] = *(((uint8_t *) &temperaturBuffer) + 3);
+		HAL_CAN_Transmit(hcan, 10);
+	
+		hcan->pTxMsg->StdId = (CanBaseAdress + 0x2);
+		hcan->pTxMsg->DLC = 8;
+	  hcan->pTxMsg->Data[0] = *((uint8_t *) &hysteresisON);
+		hcan->pTxMsg->Data[1] = *(((uint8_t *) &hysteresisON) + 1);
+		hcan->pTxMsg->Data[2] = *(((uint8_t *) &hysteresisON) + 2);
+		hcan->pTxMsg->Data[3] = *(((uint8_t *) &hysteresisON) + 3);
+		hcan->pTxMsg->Data[4] = *((uint8_t *) &hysteresisOFF);
+		hcan->pTxMsg->Data[5] = *(((uint8_t *) &hysteresisOFF) + 1);
+		hcan->pTxMsg->Data[6] = *(((uint8_t *) &hysteresisOFF) + 2);
+		hcan->pTxMsg->Data[7] = *(((uint8_t *) &hysteresisOFF) + 3);
+		HAL_CAN_Transmit(hcan, 10);
+	
+		hcan->pTxMsg->StdId = (CanBaseAdress + 0x4);
+		hcan->pTxMsg->DLC = 1;
+	  hcan->pTxMsg->Data[0] = relaisState;
+		HAL_CAN_Transmit(hcan, 10);
+		
+		hcan->pTxMsg->StdId = (CanBaseAdress + 0x5);
+		hcan->pTxMsg->DLC = 8;
+	  hcan->pTxMsg->Data[0] = *((uint8_t *) &temperaturBufferMax);
+		hcan->pTxMsg->Data[1] = *(((uint8_t *) &temperaturBufferMax) + 1);
+		hcan->pTxMsg->Data[2] = *(((uint8_t *) &temperaturBufferMax) + 2);
+		hcan->pTxMsg->Data[3] = *(((uint8_t *) &temperaturBufferMax) + 3);
+		hcan->pTxMsg->Data[4] = *((uint8_t *) &temperaturSolarMin);
+		hcan->pTxMsg->Data[5] = *(((uint8_t *) &temperaturSolarMin) + 1);
+		hcan->pTxMsg->Data[6] = *(((uint8_t *) &temperaturSolarMin) + 2);
+		hcan->pTxMsg->Data[7] = *(((uint8_t *) &temperaturSolarMin) + 3);
+		HAL_CAN_Transmit(hcan, 10);
+			
+		hcan->pTxMsg->StdId = (CanBaseAdress + 0x6);
+		hcan->pTxMsg->DLC = 1;
+	  hcan->pTxMsg->Data[0] = *((uint8_t *) &controllerActivated);
+		HAL_CAN_Transmit(hcan, 10);
+
+}	
+
 
 if(hcan->pRxMsg->StdId == (CanBaseAdress + 0x3)){
 	float tmpON;

@@ -35,7 +35,7 @@ I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h)(0x5BC47A04)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h)(0x5BC47A04)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h)(0x5BC47A04)
 F (..\Inc\MAX31865.h)(0x5C1361B0)()
-F (../Src/main.c)(0x5C17C02E)(--c99 -c --cpu Cortex-M3 -D__EVAL -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include-IC:\Users\user\Documents\GitHub\VMCB\Software\Solarregler\MDK-ARM\RTE\_Solarregler-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.0\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F10X_MD -DUSE_HAL_DRIVER -DSTM32F103xB-o solarregler\main.o --omf_browse solarregler\main.crf --depend solarregler\main.d)
+F (../Src/main.c)(0x5C1CD538)(--c99 -c --cpu Cortex-M3 -D__EVAL -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include-IC:\Users\user\Documents\GitHub\VMCB\Software\Solarregler\MDK-ARM\RTE\_Solarregler-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.0\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F10X_MD -DUSE_HAL_DRIVER -DSTM32F103xB-o solarregler\main.o --omf_browse solarregler\main.crf --depend solarregler\main.d)
 I (../Inc/main.h)(0x5C17BBB2)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h)(0x5BC47A04)
 I (../Inc/stm32f1xx_hal_conf.h)(0x5C17B1E6)
@@ -70,7 +70,7 @@ I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h)(0x5BC47A04)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h)(0x5BC47A04)
 I (../Inc/MAX31865.h)(0x5C1361B0)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x57F66928)
-F (../Src/stm32f1xx_it.c)(0x5C17C521)(--c99 -c --cpu Cortex-M3 -D__EVAL -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include-IC:\Users\user\Documents\GitHub\VMCB\Software\Solarregler\MDK-ARM\RTE\_Solarregler-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.0\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F10X_MD -DUSE_HAL_DRIVER -DSTM32F103xB-o solarregler\stm32f1xx_it.o --omf_browse solarregler\stm32f1xx_it.crf --depend solarregler\stm32f1xx_it.d)
+F (../Src/stm32f1xx_it.c)(0x5C1CD521)(--c99 -c --cpu Cortex-M3 -D__EVAL -D__MICROLIB -g -O3 --apcs=interwork --split_sections -I ../Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include-IC:\Users\user\Documents\GitHub\VMCB\Software\Solarregler\MDK-ARM\RTE\_Solarregler-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.0\CMSIS\Include-IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include-D__UVISION_VERSION="522" -D_RTE_ -DSTM32F10X_MD -DUSE_HAL_DRIVER -DSTM32F103xB-o solarregler\stm32f1xx_it.o --omf_browse solarregler\stm32f1xx_it.crf --depend solarregler\stm32f1xx_it.d)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h)(0x5BC47A04)
 I (../Inc/stm32f1xx_hal_conf.h)(0x5C17B1E6)
 I (../Inc/main.h)(0x5C17BBB2)
