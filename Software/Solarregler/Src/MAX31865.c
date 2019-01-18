@@ -50,6 +50,16 @@ float measureTemperatureOneShotConverted(MAX31865_TypeDef * MAX31865){  //measur
 	return (float)temperature;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////
+// MAX31865: Handle Struct for MAX31865 Chip
+// resistance: correction for leads/resistance of leads
+float measureTemperatureOneShotConvertedCorrected(MAX31865_TypeDef * MAX31865, float resistance){
+	float temperature;
+	
+	temperature = measureTemperatureOneShotConverted(MAX31865) - (resistance * DEGREES_PER_RESISTANCE);
+
+	return temperature;
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////

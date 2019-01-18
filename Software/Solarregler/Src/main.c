@@ -74,6 +74,9 @@ float temperaturBufferMax = 90;
 float hysteresisON = 10.0;
 float hysteresisOFF = 2.0;
 
+float resistanceSolar = 0.0;
+float resistanceBuffer  = 0.0;
+
 MAX31865_TypeDef MAXSolar;
 MAX31865_TypeDef MAXBuffer;
 MAX31865_TypeDef MAXSens3;
@@ -88,9 +91,9 @@ uint8_t sens3Solar = 0;
 
 uint8_t sens3Buffer = 0;
 
-int onTime = 0;
+float onTime = 0;
 
-uint16_t CanBaseAdress = 0x123;
+uint16_t CanBaseAdress = 0x120;
 
 
 CanRxMsgTypeDef CanRx;
@@ -115,6 +118,9 @@ static void MX_RTC_Init(void);
 /* Private function prototypes -----------------------------------------------*/
 
 uint8_t readCanIdDip(void);
+
+void serialize(float data, uint8_t * serial);
+
 void reenableCanInterrupt(CAN_HandleTypeDef* hcan);
 
 /* USER CODE END PFP */
@@ -584,96 +590,83 @@ uint8_t readCanIdDip(){
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan){
 	
 	
-if(hcan->pRxMsg->StdId == (CanBaseAdress + 0xB)){
+if(hcan->pRxMsg->StdId == (CanBaseAdress + MESSAGE_TRIGGER_OFFSET)){
 	
 		if(sens3Used == 0){
 			
-		hcan->pTxMsg->StdId = (CanBaseAdress);
+		hcan->pTxMsg->StdId = (CanBaseAdress + SENS_1_OFFSET);
 		hcan->pTxMsg->DLC = 5;
 		hcan->pTxMsg->Data[0] = MAXSolar.faultDetected;
-	  hcan->pTxMsg->Data[1] = *((uint8_t *) &temperaturSolar);
-		hcan->pTxMsg->Data[2] = *(((uint8_t *) &temperaturSolar) + 1);
-		hcan->pTxMsg->Data[3] = *(((uint8_t *) &temperaturSolar) + 2);
-		hcan->pTxMsg->Data[4] = *(((uint8_t *) &temperaturSolar) + 3);
+		serialize(temperaturSolar, &(hcan->pTxMsg->Data[1]));
 		HAL_CAN_Transmit(hcan, 10);
 		
 		} else {
 		
 		if(sens3Solar && !sens3Buffer){
 			
-		hcan->pTxMsg->StdId = (CanBaseAdress);
+		hcan->pTxMsg->StdId = (CanBaseAdress + SENS_1_OFFSET);
 		hcan->pTxMsg->DLC = 5;
 		hcan->pTxMsg->Data[0] = MAXSolar.faultDetected | MAXSens3.faultDetected;
-	  hcan->pTxMsg->Data[1] = *((uint8_t *) &temperaturSolarMean);
-		hcan->pTxMsg->Data[2] = *(((uint8_t *) &temperaturSolarMean) + 1);
-		hcan->pTxMsg->Data[3] = *(((uint8_t *) &temperaturSolarMean) + 2);
-		hcan->pTxMsg->Data[4] = *(((uint8_t *) &temperaturSolarMean) + 3);
+		serialize(temperaturSolarMean, &(hcan->pTxMsg->Data[1]));
 		HAL_CAN_Transmit(hcan, 10);		
 					
 			}	else {
 				
 		if(sens3Buffer && !sens3Solar){
 			
-		hcan->pTxMsg->StdId = (CanBaseAdress);
+		hcan->pTxMsg->StdId = (CanBaseAdress + SENS_1_OFFSET);
 		hcan->pTxMsg->DLC = 5;
 		hcan->pTxMsg->Data[0] = MAXBuffer.faultDetected | MAXSens3.faultDetected;
-	  hcan->pTxMsg->Data[1] = *((uint8_t *) &temperaturBufferMean);
-		hcan->pTxMsg->Data[2] = *(((uint8_t *) &temperaturBufferMean) + 1);
-		hcan->pTxMsg->Data[3] = *(((uint8_t *) &temperaturBufferMean) + 2);
-		hcan->pTxMsg->Data[4] = *(((uint8_t *) &temperaturBufferMean) + 3);
+		serialize(temperaturBufferMean, &(hcan->pTxMsg->Data[1]));
 		HAL_CAN_Transmit(hcan, 10);	
 			
 				}
 			}		
 		}
 
-		hcan->pTxMsg->StdId = (CanBaseAdress + 0x1);
+		hcan->pTxMsg->StdId = (CanBaseAdress + SENS_2_OFFSET);
 		hcan->pTxMsg->DLC = 5;
 		hcan->pTxMsg->Data[0] = MAXBuffer.faultDetected ;
-	  hcan->pTxMsg->Data[1] = *((uint8_t *) &temperaturBuffer);
-		hcan->pTxMsg->Data[2] = *(((uint8_t *) &temperaturBuffer) + 1);
-		hcan->pTxMsg->Data[3] = *(((uint8_t *) &temperaturBuffer) + 2);
-		hcan->pTxMsg->Data[4] = *(((uint8_t *) &temperaturBuffer) + 3);
+		serialize(temperaturBuffer, &(hcan->pTxMsg->Data[1]));
 		HAL_CAN_Transmit(hcan, 10);
 	
-		hcan->pTxMsg->StdId = (CanBaseAdress + 0x2);
+		hcan->pTxMsg->StdId = (CanBaseAdress + SCHWELLE_AN_AUS_OFFSET);
 		hcan->pTxMsg->DLC = 8;
-	  hcan->pTxMsg->Data[0] = *((uint8_t *) &hysteresisON);
-		hcan->pTxMsg->Data[1] = *(((uint8_t *) &hysteresisON) + 1);
-		hcan->pTxMsg->Data[2] = *(((uint8_t *) &hysteresisON) + 2);
-		hcan->pTxMsg->Data[3] = *(((uint8_t *) &hysteresisON) + 3);
-		hcan->pTxMsg->Data[4] = *((uint8_t *) &hysteresisOFF);
-		hcan->pTxMsg->Data[5] = *(((uint8_t *) &hysteresisOFF) + 1);
-		hcan->pTxMsg->Data[6] = *(((uint8_t *) &hysteresisOFF) + 2);
-		hcan->pTxMsg->Data[7] = *(((uint8_t *) &hysteresisOFF) + 3);
+		serialize(hysteresisON, &(hcan->pTxMsg->Data[0]));
+		serialize(hysteresisOFF, &(hcan->pTxMsg->Data[4]));
 		HAL_CAN_Transmit(hcan, 10);
 	
-		hcan->pTxMsg->StdId = (CanBaseAdress + 0x4);
+		hcan->pTxMsg->StdId = (CanBaseAdress + INFO_RELAIS_OFFSET);
 		hcan->pTxMsg->DLC = 1;
 	  hcan->pTxMsg->Data[0] = relaisState;
 		HAL_CAN_Transmit(hcan, 10);
 		
-		hcan->pTxMsg->StdId = (CanBaseAdress + 0x5);
+		hcan->pTxMsg->StdId = (CanBaseAdress + TEMPERATUR_MIN_MAX_OFFSET);
 		hcan->pTxMsg->DLC = 8;
-	  hcan->pTxMsg->Data[0] = *((uint8_t *) &temperaturBufferMax);
-		hcan->pTxMsg->Data[1] = *(((uint8_t *) &temperaturBufferMax) + 1);
-		hcan->pTxMsg->Data[2] = *(((uint8_t *) &temperaturBufferMax) + 2);
-		hcan->pTxMsg->Data[3] = *(((uint8_t *) &temperaturBufferMax) + 3);
-		hcan->pTxMsg->Data[4] = *((uint8_t *) &temperaturSolarMin);
-		hcan->pTxMsg->Data[5] = *(((uint8_t *) &temperaturSolarMin) + 1);
-		hcan->pTxMsg->Data[6] = *(((uint8_t *) &temperaturSolarMin) + 2);
-		hcan->pTxMsg->Data[7] = *(((uint8_t *) &temperaturSolarMin) + 3);
+		serialize(temperaturBufferMax, &(hcan->pTxMsg->Data[0]));
+		serialize(temperaturSolarMin, &(hcan->pTxMsg->Data[4]));
 		HAL_CAN_Transmit(hcan, 10);
 			
-		hcan->pTxMsg->StdId = (CanBaseAdress + 0x6);
+		hcan->pTxMsg->StdId = (CanBaseAdress + REGLER_AKTIV_OFFSET);
 		hcan->pTxMsg->DLC = 1;
 	  hcan->pTxMsg->Data[0] = *((uint8_t *) &controllerActivated);
+		HAL_CAN_Transmit(hcan, 10);
+		
+		hcan->pTxMsg->StdId = (CanBaseAdress + KORREKTUR_WIDERSTAND_OFFSET);
+		hcan->pTxMsg->DLC = 8;
+		serialize(resistanceSolar, &(hcan->pTxMsg->Data[0]));
+		serialize(resistanceBuffer, &(hcan->pTxMsg->Data[4]));
+		HAL_CAN_Transmit(hcan, 10);
+		
+		hcan->pTxMsg->StdId = (CanBaseAdress + ON_TIME_OFFSET);
+		hcan->pTxMsg->DLC = 4;
+		serialize(onTime, &(hcan->pTxMsg->Data[0]));
 		HAL_CAN_Transmit(hcan, 10);
 
 }	
 
 
-if(hcan->pRxMsg->StdId == (CanBaseAdress + 0x3)){
+if(hcan->pRxMsg->StdId == (CanBaseAdress + SET_SCHWELLE_AN_AUS_OFFSET)){
 	float tmpON;
 	float tmpOFF;
 	uint8_t * ON = (uint8_t *) &tmpON;
@@ -714,21 +707,15 @@ if(hcan->pRxMsg->StdId == (CanBaseAdress + 0x3)){
 	}
 	
 	
-		hcan->pTxMsg->StdId = (CanBaseAdress + 0x2);
+		hcan->pTxMsg->StdId = (CanBaseAdress + SCHWELLE_AN_AUS_OFFSET);
 		hcan->pTxMsg->DLC = 8;
-	  hcan->pTxMsg->Data[0] = *((uint8_t *) &hysteresisON);
-		hcan->pTxMsg->Data[1] = *(((uint8_t *) &hysteresisON) + 1);
-		hcan->pTxMsg->Data[2] = *(((uint8_t *) &hysteresisON) + 2);
-		hcan->pTxMsg->Data[3] = *(((uint8_t *) &hysteresisON) + 3);
-		hcan->pTxMsg->Data[4] = *((uint8_t *) &hysteresisOFF);
-		hcan->pTxMsg->Data[5] = *(((uint8_t *) &hysteresisOFF) + 1);
-		hcan->pTxMsg->Data[6] = *(((uint8_t *) &hysteresisOFF) + 2);
-		hcan->pTxMsg->Data[7] = *(((uint8_t *) &hysteresisOFF) + 3);
+		serialize(hysteresisON, &(hcan->pTxMsg->Data[0]));
+		serialize(hysteresisOFF, &(hcan->pTxMsg->Data[4]));
 		HAL_CAN_Transmit(hcan, 10);
 	
 }
 	
-if(hcan->pRxMsg->StdId == (CanBaseAdress + 0x7)){
+if(hcan->pRxMsg->StdId == (CanBaseAdress + SET_TEMPERATUR_MIN_MAX_OFFSET)){
 	float tmpMAX;
 	float tmpMIN;
 	uint8_t * MAX = (uint8_t *) &tmpMAX;
@@ -768,21 +755,15 @@ if(hcan->pRxMsg->StdId == (CanBaseAdress + 0x7)){
 	}
 	
 	
-		hcan->pTxMsg->StdId = (CanBaseAdress + 0x5);
+		hcan->pTxMsg->StdId = (CanBaseAdress + TEMPERATUR_MIN_MAX_OFFSET);
 		hcan->pTxMsg->DLC = 8;
-	  hcan->pTxMsg->Data[0] = *((uint8_t *) &temperaturBufferMax);
-		hcan->pTxMsg->Data[1] = *(((uint8_t *) &temperaturBufferMax) + 1);
-		hcan->pTxMsg->Data[2] = *(((uint8_t *) &temperaturBufferMax) + 2);
-		hcan->pTxMsg->Data[3] = *(((uint8_t *) &temperaturBufferMax) + 3);
-		hcan->pTxMsg->Data[4] = *((uint8_t *) &temperaturSolarMin);
-		hcan->pTxMsg->Data[5] = *(((uint8_t *) &temperaturSolarMin) + 1);
-		hcan->pTxMsg->Data[6] = *(((uint8_t *) &temperaturSolarMin) + 2);
-		hcan->pTxMsg->Data[7] = *(((uint8_t *) &temperaturSolarMin) + 3);
+		serialize(temperaturBufferMax, &(hcan->pTxMsg->Data[0]));
+		serialize(temperaturSolarMin, &(hcan->pTxMsg->Data[4]));
 		HAL_CAN_Transmit(hcan, 10);
 	
 }
 
-if(hcan->pRxMsg->StdId == (CanBaseAdress + 0x8)){
+if(hcan->pRxMsg->StdId == (CanBaseAdress + SET_REGLER_AKTIV_OFFSET)){
 	
 	controllerActivated = hcan->pRxMsg->Data[0];
 	
@@ -793,6 +774,39 @@ if(hcan->pRxMsg->StdId == (CanBaseAdress + 0x8)){
 	
 }
 	
+
+if(hcan->pRxMsg->StdId == (CanBaseAdress + SET_KORREKTUR_WIDERSTAND_OFFSET)){
+	
+
+	uint8_t * SOL = (uint8_t *) &resistanceSolar;
+	uint8_t * BUF = (uint8_t *) &resistanceBuffer;
+	
+	*SOL = hcan->pRxMsg->Data[0];
+	*(SOL + 1) = hcan->pRxMsg->Data[1];
+	*(SOL + 2) = hcan->pRxMsg->Data[2];
+	*(SOL + 3) = hcan->pRxMsg->Data[3];
+
+	*BUF = hcan->pRxMsg->Data[4];
+	*(BUF + 1) = hcan->pRxMsg->Data[5];
+	*(BUF + 2) = hcan->pRxMsg->Data[6];
+	*(BUF + 3) = hcan->pRxMsg->Data[7];
+	
+	
+	hcan->pTxMsg->StdId = (CanBaseAdress + KORREKTUR_WIDERSTAND_OFFSET);
+	hcan->pTxMsg->DLC = 8;
+	serialize(resistanceSolar, &(hcan->pTxMsg->Data[0]));
+	serialize(resistanceBuffer, &(hcan->pTxMsg->Data[4]));
+	HAL_CAN_Transmit(hcan, 10);
+	
+}
+
+if(hcan->pRxMsg->StdId == (CanBaseAdress + SET_SENS_3_STATUS_OFFSET)){
+	
+	sens3Used = hcan->pRxMsg->Data[0];
+	sens3Buffer = hcan->pRxMsg->Data[1];
+	sens3Solar = hcan->pRxMsg->Data[2];
+	
+}
 	
 	reenableCanInterrupt(hcan);
 	
@@ -817,6 +831,16 @@ void reenableCanInterrupt(CAN_HandleTypeDef* hcan){
 	}
 	
 	__HAL_CAN_ENABLE_IT(hcan, CAN_IT_FMP0);
+	
+}
+
+
+void serialize(float data, uint8_t * serial){
+	
+		*serial = *((uint8_t *) &data);
+		*(serial + 1) = *(((uint8_t *) &data) + 1);
+		*(serial + 2) = *(((uint8_t *) &data) + 2);
+		*(serial + 3) = *(((uint8_t *) &data) + 3);
 	
 }
 

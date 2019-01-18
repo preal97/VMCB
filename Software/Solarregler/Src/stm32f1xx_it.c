@@ -283,6 +283,9 @@ void TIM2_IRQHandler(void)
 	extern uint8_t sens3Solar;
 	extern uint8_t sens3Buffer;
 	
+	extern float resistanceSolar;
+	extern float resistanceBuffer;
+	
 	extern uint16_t CanBaseAdress;
 	
 	static uint8_t relaisStateOld;
@@ -290,7 +293,7 @@ void TIM2_IRQHandler(void)
 	//static float meanArray[20] = {0};
 	
 	extern RTC_HandleTypeDef hrtc;
-	extern int onTime;
+	extern float onTime;
 	static RTC_TimeTypeDef tmpTime;
 	
 	
@@ -308,17 +311,19 @@ void TIM2_IRQHandler(void)
 	checkForFaults(&MAXBuffer);
 	
 	//read temperatur sensors
-	temperaturSolar = measureTemperatureOneShotConverted(&MAXSolar);
-	temperaturBuffer = measureTemperatureOneShotConverted(&MAXBuffer);
+	temperaturSolar = measureTemperatureOneShotConvertedCorrected(&MAXSolar, resistanceSolar);
+	temperaturBuffer = measureTemperatureOneShotConvertedCorrected(&MAXBuffer, resistanceBuffer);
 	
 	if(sens3Used){
 		checkForFaults(&MAXSens3);
-		temperaturSens3 = measureTemperatureOneShotConverted(&MAXSens3);
+		
 		
 		if(sens3Buffer && !sens3Solar){
+		temperaturSens3 = measureTemperatureOneShotConvertedCorrected(&MAXSens3, resistanceBuffer);
 		temperaturBufferMean = (temperaturBuffer + temperaturSens3) / 2.0;
 		} else {
 		if(sens3Solar && !sens3Buffer){
+		temperaturSens3 = measureTemperatureOneShotConvertedCorrected(&MAXSens3, resistanceSolar);
 		temperaturSolarMean = (temperaturSolar + temperaturSens3) / 2.0;
 		}
 	}
@@ -344,7 +349,7 @@ if(sens3Used == 0){
 	}
 }
 	if(relaisState == 1){
-		if ((temperaturBuffer >= temperaturSolar + hysteresisOFF) || (temperaturSolar < temperaturSolarMin) || (temperaturBuffer > temperaturBufferMax)){
+		if ((temperaturBuffer >= temperaturSolar - hysteresisOFF) || (temperaturSolar < temperaturSolarMin) || (temperaturBuffer > temperaturBufferMax)){
 			relaisState = 0;
 			HAL_GPIO_WritePin(B1_GPIO_Port, B1_Pin, 0);
 		} else {
@@ -365,7 +370,7 @@ if(sens3Used == 0){
 	}
 }
 	if(relaisState == 1){
-		if ((temperaturBufferMean >= temperaturSolar + hysteresisOFF) || (temperaturSolar < temperaturSolarMin) || (temperaturBufferMean > temperaturBufferMax)){
+		if ((temperaturBufferMean >= temperaturSolar - hysteresisOFF) || (temperaturSolar < temperaturSolarMin) || (temperaturBufferMean > temperaturBufferMax)){
 			relaisState = 0;
 			HAL_GPIO_WritePin(B1_GPIO_Port, B1_Pin, 0);
 		} else {
@@ -385,7 +390,7 @@ if(sens3Used == 0){
 	}
 }
 	if(relaisState == 1){
-		if ((temperaturBuffer >= temperaturSolarMean + hysteresisOFF) || (temperaturSolarMean < temperaturSolarMin) || (temperaturBuffer > temperaturBufferMax)){
+		if ((temperaturBuffer >= temperaturSolarMean - hysteresisOFF) || (temperaturSolarMean < temperaturSolarMin) || (temperaturBuffer > temperaturBufferMax)){
 			relaisState = 0;
 			HAL_GPIO_WritePin(B1_GPIO_Port, B1_Pin, 0);
 		} else {
@@ -409,7 +414,7 @@ if(sens3Used == 0){
 	}
 	if(relaisState == 0 && relaisStateOld == 1){
 		HAL_RTC_GetTime(&hrtc, &tmpTime, RTC_FORMAT_BCD);
-		onTime += tmpTime.Seconds + tmpTime.Minutes * 60 + tmpTime.Hours * 3600; 
+		onTime += (float)tmpTime.Seconds / 3600  + (float)tmpTime.Minutes / 60 + (float)tmpTime.Hours; 
 	}
 	
 
